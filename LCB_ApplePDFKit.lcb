@@ -93,6 +93,8 @@ private foreign handler objC_ApplePDFKitPDFViewAlloc() returns ObjcId binds to "
 private foreign handler objC_ApplePDFKitPDFViewInit(in pPDFView as ObjcRetainedId) returns ObjcRetainedId binds to "objc:PDFView.-init"
 -- private foreign handler objC_ApplePDFKitPDFSetDocument(in pPDFView as ObjcId, in pPDFDocument as ObjcId) returns nothing binds to "objc:objc:PDFView.-document:"
 private foreign handler objC_ApplePDFKitPDFViewSetValueForKey(in pPDFDocument as ObjcId, in pValue as ObjcId, in pSelector as ObjcId) returns nothing binds to "objc:PDFView.-setValue:forKey:"
+private foreign handler objC_ApplePDFKitPDFViewSetBoolValueForKey(in pPDFDocument as ObjcId, in pValue as CBool, in pSelector as ObjcId) returns nothing binds to "objc:PDFView.-setValue:forKey:"
+
 
 private foreign handler objC_ApplePDFKitPDFDocumentAlloc() returns ObjcRetainedId binds to "objc:PDFDocument.+alloc"
 private foreign handler objC_ApplePDFKitPDFDocumentInitFromURL(in pPDFDocument as ObjcRetainedId, in pNSURL as ObjcId) returns ObjcRetainedId binds to "objc:PDFDocument.-initWithURL:"
@@ -217,6 +219,7 @@ public handler ApplePDFKitMakePDFViewWindow(in pPathToPDFStr as String) returns 
          put objC_ApplePDFKitPDFDocumentInitFromURL(mPDFDocument,tFileNSURL) into mPDFDocument
          -- objC_ApplePDFKitPDFSetDocument(mPDFView,mPDFDocument)
          objC_ApplePDFKitPDFViewSetValueForKey(mPDFView,mPDFDocument,StringToNSString("document"))
+         objC_ApplePDFKitPDFViewSetBoolValueForKey(mPDFView,true,StringToNSString("autoScales"))
          -- LogNSObjectClassName(tFileNSURL)
          --LogNSObjectClassName(mPDFView)
          --LogNSObjectClassName(mPDFDocument)
