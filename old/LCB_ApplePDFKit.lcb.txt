@@ -89,15 +89,15 @@ private foreign handler objC_NSMutableArrayInitWithNSArray(in pNSMutableArray as
 
 private foreign handler c_CFErrorCopyDescription(in pCFErrorRef as ObjcId) returns ObjcId binds to "c:CFErrorCopyDescription"
 
-private foreign handler objC_ApplePDFKitPDFViewAlloc() returns ObjcId binds to "objc:PDFView.+alloc"
-private foreign handler objC_ApplePDFKitPDFViewInit(in pPDFView as ObjcRetainedId) returns ObjcRetainedId binds to "objc:PDFView.-init"
--- private foreign handler objC_ApplePDFKitPDFSetDocument(in pPDFView as ObjcId, in pPDFDocument as ObjcId) returns nothing binds to "objc:objc:PDFView.-document:"
-private foreign handler objC_ApplePDFKitPDFViewSetValueForKey(in pPDFDocument as ObjcId, in pValue as ObjcId, in pSelector as ObjcId) returns nothing binds to "objc:PDFView.-setValue:forKey:"
+private foreign handler objC_ApplePDFKitPDFViewAlloc() returns ObjcId binds to "objc:PDFKit.framework>PDFView.+alloc"
+private foreign handler objC_ApplePDFKitPDFViewInit(in pPDFView as ObjcRetainedId) returns ObjcRetainedId binds to "objc:PDFKit.framework>PDFView.-init"
+-- private foreign handler objC_ApplePDFKitPDFSetDocument(in pPDFView as ObjcId, in pPDFDocument as ObjcId) returns nothing binds to "objc:objc:PDFKit.framework>PDFView.-document:"
+private foreign handler objC_ApplePDFKitPDFViewSetValueForKey(in pPDFDocument as ObjcId, in pValue as ObjcId, in pSelector as ObjcId) returns nothing binds to "objc:PDFKit.framework>PDFView.-setValue:forKey:"
 
-private foreign handler objC_ApplePDFKitPDFDocumentAlloc() returns ObjcRetainedId binds to "objc:PDFDocument.+alloc"
-private foreign handler objC_ApplePDFKitPDFDocumentInitFromURL(in pPDFDocument as ObjcRetainedId, in pNSURL as ObjcId) returns ObjcRetainedId binds to "objc:PDFDocument.-initWithURL:"
---private foreign handler objC_ApplePDFKitPDFDocumentGetPageCount(in pPDFDocument as ObjcId) returns ObjcId binds to "objc:PDFDocument.pageCount"
-private foreign handler objC_ApplePDFKitPDFDocumentValueForKey(in pPDFDocument as ObjcId, in pSelector as ObjcId) returns ObjcId binds to "objc:PDFDocument.-valueForKey:"
+private foreign handler objC_ApplePDFKitPDFDocumentAlloc() returns ObjcRetainedId binds to "objc:PDFKit.framework>PDFDocument.+alloc"
+private foreign handler objC_ApplePDFKitPDFDocumentInitFromURL(in pPDFDocument as ObjcRetainedId, in pNSURL as ObjcId) returns ObjcRetainedId binds to "objc:PDFKit.framework>PDFDocument.-initWithURL:"
+--private foreign handler objC_ApplePDFKitPDFDocumentGetPageCount(in pPDFDocument as ObjcId) returns ObjcId binds to "objc:PDFKit.framework>PDFDocument.pageCount"
+private foreign handler objC_ApplePDFKitPDFDocumentValueForKey(in pPDFDocument as ObjcId, in pSelector as ObjcId) returns ObjcId binds to "objc:PDFKit.framework>PDFDocument.-valueForKey:"
 
 
 
