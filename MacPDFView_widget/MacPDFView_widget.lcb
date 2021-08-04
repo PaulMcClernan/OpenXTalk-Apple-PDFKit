@@ -102,6 +102,10 @@ private foreign handler objC_ApplePDFKitPDFViewSetValueForKey(in pPDFView as Obj
 private foreign handler objC_ApplePDFKitPDFViewSetCUIntValueForKey(in pPDFView as ObjcId, in pValue as CUint, in pSelector as ObjcId) returns nothing binds to "objc:PDFView.-setValue:forKey:"
 private foreign handler objC_ApplePDFKitPDFViewSetBoolValueForKey(in pPDFView as ObjcId, in pValue as CBool, in pSelector as ObjcId) returns nothing binds to "objc:PDFView.-setValue:forKey:"
 private foreign handler objC_ApplePDFKitPDFViewGetValueForKey(in pPDFView as ObjcId, in pSelector as ObjcId) returns optional ObjcId binds to "objc:PDFView.-valueForKey:"
+private foreign handler objC_ApplePDFKitPDFViewGetCurrentPage(in pPDFView as ObjcId) returns optional ObjcId binds to "objc:PDFView.currentPage"
+private foreign handler objC_ApplePDFKitPDFViewNextPage(in pPDFView as ObjcId) returns nothing binds to "objc:PDFView.-goToNextPage"
+
+private foreign handler objC_ApplePDFKitPDFPageGetValueForKey(in pPDFPage as ObjcId, in pSelector as ObjcId) returns optional ObjcId binds to "objc:PDFView.-valueForKey:"
 
 
 private foreign handler objC_ApplePDFKitPDFDocumentAlloc() returns ObjcRetainedId binds to "objc:PDFDocument.+alloc"
@@ -295,6 +299,117 @@ private handler getPDFDisplayMode() returns optional any
          --  redraw all
 end handler
 
+
+/**
+Syntax:
+set the PDFDisplayMode of <widget> to <PDFDisplayMode>
+get the PDFDisplayMode of <widget>
+
+Summary: The mode to display the PDF in the widget
+
+Value (string): The PDF File Path if any.
+
+Example:
+on mouesUp
+    set the PDFPath of "My PDF View" to "Applications/Utilities/System Information.app/Contents/Resources/ProductGuides/ENERGY STAR.pdf"
+end mouesUp
+
+Description:
+Use the <PDFPath> property to get or set the path of the PDF file
+being displayed by the widget.
+*/
+property "PDFPageLabel" get getPDFPageLabel -- set setPDFDisplayMode
+metadata PDFPageLabel.label is "PDF Page Label"
+metadata PDFPageLabel.default is ""
+-- metadata PDFDisplayMode.editor is "com.livecode.pi.number"
+
+private handler getPDFPageLabel() returns optional any
+    -- put pPath into mPDFPath
+    variable tNSError as optional ObjcId
+     variable tNSObj as optional ObjcId
+     variable tPDFPage as optional ObjcId
+
+     variable tString as String
+     variable tNumber as Integer
+    unsafe
+      if mPDFView is not nothing then
+         put objC_ApplePDFKitPDFViewGetCurrentPage(mPDFView) into tPDFPage
+         put objC_ApplePDFKitPDFPageGetValueForKey(tPDFPage,StringToNSString("label")) into tNSObj
+         put StringFromNSString(tNSObj) into tString
+         return tString
+         -- currentPage
+         -- pageAtIndex:
+         --    objC_ApplePDFKitPDFViewGetValueForKey(mPDFView,NumberToNSNumber(mPDFDisplayMode),StringToNSString("label"))
+            -- kPDFDisplaySinglePage = 0
+            -- kPDFDisplaySinglePageContinuous = 1
+            -- kPDFDisplayTwoUp = 2
+            -- kkPDFDisplayTwoUpContinuous = 3
+            UpdatePDFView()
+         -- log [tFileNSURL, mPDFPath,mPDFDocument,mPDFView]
+      end if
+      return ""
+    end unsafe
+   --  redraw all
+end handler
+
+property "PDFPageText" get getPDFPageText -- set setPDFDisplayMode
+metadata PDFPageText.label is "PDF Page Text"
+metadata PDFPageText.default is ""
+private handler getPDFPageText() returns optional any
+    -- put pPath into mPDFPath
+    variable tNSError as optional ObjcId
+     variable tNSObj as optional ObjcId
+     variable tPDFPage as optional ObjcId
+
+     variable tString as String
+     variable tNumber as Integer
+    unsafe
+      if mPDFView is not nothing then
+         put objC_ApplePDFKitPDFViewGetCurrentPage(mPDFView) into tPDFPage
+         put objC_ApplePDFKitPDFPageGetValueForKey(tPDFPage,StringToNSString("string")) into tNSObj
+         put StringFromNSString(tNSObj) into tString
+         return tString
+         -- currentPage
+         -- pageAtIndex:
+         --    objC_ApplePDFKitPDFViewGetValueForKey(mPDFView,NumberToNSNumber(mPDFDisplayMode),StringToNSString("label"))
+            -- kPDFDisplaySinglePage = 0
+            -- kPDFDisplaySinglePageContinuous = 1
+            -- kPDFDisplayTwoUp = 2
+            -- kkPDFDisplayTwoUpContinuous = 3
+            UpdatePDFView()
+         -- log [tFileNSURL, mPDFPath,mPDFDocument,mPDFView]
+      end if
+      return ""
+    end unsafe
+   --  redraw all
+end handler
+
+property "PDFViewGoNextPage" get getPDFViewGoNextPage set setPDFViewGoNextPage
+private handler getPDFViewGoNextPage() returns optional any
+   variable tNSObj as optional ObjcId
+    unsafe
+      if mPDFView is not nothing then
+         put objC_ApplePDFKitPDFViewNextPage(mPDFView) into tNSObj
+         -- UpdatePDFView()
+         -- log [tFileNSURL, mPDFPath,mPDFDocument,mPDFView]
+      end if
+      return ""
+    end unsafe
+   redraw all
+end handler
+private handler setPDFViewGoNextPage(in pParam as optional any) returns optional any
+   variable tNSObj as optional ObjcId
+    unsafe
+      if mPDFView is not nothing then
+         put objC_ApplePDFKitPDFViewNextPage(mPDFView) into tNSObj
+         UpdatePDFView()
+         -- log [tFileNSURL, mPDFPath,mPDFDocument,mPDFView]
+      end if
+      return ""
+    end unsafe
+   redraw all
+end handler
+
 private handler IsMac() returns Boolean
     return the operating system is "mac"
 end handler
@@ -352,6 +467,8 @@ public handler OnStartEditing()
    if mPDFView is not nothing then
       unsafe
          objC_ApplePDFKitPDFViewHide(mPDFView,true)
+         objC_ApplePDFKitPDFViewNeedsDisplay(mPDFView,true)
+         -- set my native layer to nothing
       end unsafe
    end if
    -- set my native layer to nothing
@@ -363,6 +480,8 @@ public handler OnStopEditing()
    if mPDFView is not nothing then
       unsafe
          objC_ApplePDFKitPDFViewHide(mPDFView,false)
+         objC_ApplePDFKitPDFViewNeedsDisplay(mPDFView,true)
+         -- set my native layer to PointerFromObjcObject(mPDFView)
       end unsafe
    end if
    -- set my native layer to PointerFromObjcObject(mPDFView)
