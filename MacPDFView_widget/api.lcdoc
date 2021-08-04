@@ -89,3 +89,25 @@ being displayed by the widget.
 
 
 
+Name: PDFPageLabel
+
+Type: property
+
+Syntax: set the PDFDisplayMode of <widget> to <PDFDisplayMode>
+get the PDFDisplayMode of <widget>
+
+Summary: The mode to display the PDF in the widget
+
+Value: The PDF File Path if any.
+
+Example:
+on mouesUp
+    set the PDFPath of "My PDF View" to "Applications/Utilities/System Information.app/Contents/Resources/ProductGuides/ENERGY STAR.pdf"
+end mouesUp
+
+Description:
+Use the <PDFPath> property to get or set the path of the PDF file
+being displayed by the widget.
+
+
+

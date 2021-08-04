@@ -103,7 +103,11 @@ private foreign handler objC_ApplePDFKitPDFViewSetCUIntValueForKey(in pPDFView a
 private foreign handler objC_ApplePDFKitPDFViewSetBoolValueForKey(in pPDFView as ObjcId, in pValue as CBool, in pSelector as ObjcId) returns nothing binds to "objc:PDFView.-setValue:forKey:"
 private foreign handler objC_ApplePDFKitPDFViewGetValueForKey(in pPDFView as ObjcId, in pSelector as ObjcId) returns optional ObjcId binds to "objc:PDFView.-valueForKey:"
 private foreign handler objC_ApplePDFKitPDFViewGetCurrentPage(in pPDFView as ObjcId) returns optional ObjcId binds to "objc:PDFView.currentPage"
-private foreign handler objC_ApplePDFKitPDFViewNextPage(in pPDFView as ObjcId) returns nothing binds to "objc:PDFView.-goToNextPage"
+private foreign handler objC_ApplePDFKitPDFViewNextPage(in pPDFView as ObjcId, in pSender as optional ObjcId ) returns nothing binds to "objc:PDFView.-goToNextPage:"
+private foreign handler objC_ApplePDFKitPDFViewPrevPage(in pPDFView as ObjcId, in pSender as optional ObjcId ) returns nothing binds to "objc:PDFView.-goToPreviousPage:"
+private foreign handler objC_ApplePDFKitPDFViewFirstPage(in pPDFView as ObjcId, in pSender as optional ObjcId ) returns nothing binds to "objc:PDFView.-goToFirstPage:"
+private foreign handler objC_ApplePDFKitPDFViewLastPage(in pPDFView as ObjcId, in pSender as optional ObjcId ) returns nothing binds to "objc:PDFView.-goToLastPage:"
+
 
 private foreign handler objC_ApplePDFKitPDFPageGetValueForKey(in pPDFPage as ObjcId, in pSelector as ObjcId) returns optional ObjcId binds to "objc:PDFView.-valueForKey:"
 
@@ -247,16 +251,12 @@ private handler setPDFDisplayMode(in pSelector as String) returns nothing
             -- kPDFDisplayTwoUp = 2
             -- kkPDFDisplayTwoUpContinuous = 3
             UpdatePDFView()
-         -- log [tFileNSURL, mPDFPath,mPDFDocument,mPDFView]
       end if
     end unsafe
-   --  redraw all
 end handler
-private handler getPDFDisplayMode() returns optional any
-    -- put pPath into mPDFPath
-    -- return mPDFDisplayMode
 
-    variable tNSError as optional ObjcId
+private handler getPDFDisplayMode() returns optional any
+     variable tNSError as optional ObjcId
      variable tNSObj as optional ObjcId
      variable tString as String
      variable tNumber as Integer
@@ -283,11 +283,6 @@ private handler getPDFDisplayMode() returns optional any
                   return (tNumber formatted as string)
                -- objC_ApplePDFKitPDFViewSetBoolValueForKey(mPDFView,true,StringToNSString("autoScales"))
                -- objC_ApplePDFKitPDFViewSetValueForKey(mPDFView,NumberToNSNumber(pSelector),StringToNSString("displayMode"))
-               -- kPDFDisplaySinglePage = 0
-               -- kPDFDisplaySinglePageContinuous = 1
-               -- kPDFDisplayTwoUp = 2
-               -- kkPDFDisplayTwoUpContinuous = 3
-               -- UpdatePDFView()
                end if
              end if
             -- log [tFileNSURL, mPDFPath,mPDFDocument,mPDFView]
@@ -296,9 +291,7 @@ private handler getPDFDisplayMode() returns optional any
          put 1 into mPDFDisplayMode
          return "1"
       end if
-         --  redraw all
 end handler
-
 
 /**
 Syntax:
@@ -337,16 +330,7 @@ private handler getPDFPageLabel() returns optional any
          put objC_ApplePDFKitPDFPageGetValueForKey(tPDFPage,StringToNSString("label")) into tNSObj
          put StringFromNSString(tNSObj) into tString
          return tString
-         -- currentPage
-         -- pageAtIndex:
-         --    objC_ApplePDFKitPDFViewGetValueForKey(mPDFView,NumberToNSNumber(mPDFDisplayMode),StringToNSString("label"))
-            -- kPDFDisplaySinglePage = 0
-            -- kPDFDisplaySinglePageContinuous = 1
-            -- kPDFDisplayTwoUp = 2
-            -- kkPDFDisplayTwoUpContinuous = 3
-            UpdatePDFView()
-         -- log [tFileNSURL, mPDFPath,mPDFDocument,mPDFView]
-      end if
+         end if
       return ""
     end unsafe
    --  redraw all
@@ -369,44 +353,40 @@ private handler getPDFPageText() returns optional any
          put objC_ApplePDFKitPDFPageGetValueForKey(tPDFPage,StringToNSString("string")) into tNSObj
          put StringFromNSString(tNSObj) into tString
          return tString
-         -- currentPage
-         -- pageAtIndex:
-         --    objC_ApplePDFKitPDFViewGetValueForKey(mPDFView,NumberToNSNumber(mPDFDisplayMode),StringToNSString("label"))
-            -- kPDFDisplaySinglePage = 0
-            -- kPDFDisplaySinglePageContinuous = 1
-            -- kPDFDisplayTwoUp = 2
-            -- kkPDFDisplayTwoUpContinuous = 3
-            UpdatePDFView()
-         -- log [tFileNSURL, mPDFPath,mPDFDocument,mPDFView]
       end if
       return ""
     end unsafe
    --  redraw all
 end handler
 
-property "PDFViewGoNextPage" get getPDFViewGoNextPage set setPDFViewGoNextPage
-private handler getPDFViewGoNextPage() returns optional any
-   variable tNSObj as optional ObjcId
-    unsafe
-      if mPDFView is not nothing then
-         put objC_ApplePDFKitPDFViewNextPage(mPDFView) into tNSObj
-         -- UpdatePDFView()
-         -- log [tFileNSURL, mPDFPath,mPDFDocument,mPDFView]
-      end if
-      return ""
-    end unsafe
-   redraw all
+property "PDFViewGoPage" get getPDFViewGoPage set setPDFViewGoPage
+private handler getPDFViewGoPage() returns optional any
+    return
 end handler
-private handler setPDFViewGoNextPage(in pParam as optional any) returns optional any
+private handler setPDFViewGoPage(in pGoToPage as optional any) returns optional any
    variable tNSObj as optional ObjcId
-    unsafe
-      if mPDFView is not nothing then
-         put objC_ApplePDFKitPDFViewNextPage(mPDFView) into tNSObj
-         UpdatePDFView()
-         -- log [tFileNSURL, mPDFPath,mPDFDocument,mPDFView]
-      end if
+   if pGoToPage is nothing or pGoToPage is the empty string then
       return ""
-    end unsafe
+   end if
+   if mPDFView is not nothing then
+      unsafe
+         if pGoToPage is "Next" or pGoToPage is "next" or pGoToPage is ">" then
+            -- put objC_ApplePDFKitPDFViewNextPage(mPDFView, nothing) into tNSObj
+            objC_ApplePDFKitPDFViewNextPage(mPDFView, nothing)
+            -- log [tFileNSURL, mPDFPath,mPDFDocument,mPDFView]
+         else if pGoToPage is "Previous" or pGoToPage is "previous" or pGoToPage is "Prev" or pGoToPage is "prev" or pGoToPage is "<" then
+            -- put objC_ApplePDFKitPDFViewPrevPage(mPDFView, nothing) into tNSObj
+            objC_ApplePDFKitPDFViewPrevPage(mPDFView, nothing)
+         else if pGoToPage is "First" or pGoToPage is "first" then
+            -- put objC_ApplePDFKitPDFViewPrevPage(mPDFView, nothing) into tNSObj
+            objC_ApplePDFKitPDFViewFirstPage(mPDFView, nothing)
+         else if pGoToPage is "Last" or pGoToPage is "last"  then
+            -- put objC_ApplePDFKitPDFViewPrevPage(mPDFView, nothing) into tNSObj
+            objC_ApplePDFKitPDFViewLastPage(mPDFView, nothing)
+         end if
+         UpdatePDFView()
+      end unsafe
+   end if
    redraw all
 end handler
 
