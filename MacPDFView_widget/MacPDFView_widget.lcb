@@ -122,6 +122,7 @@ private foreign handler objC_ApplePDFKitPDFDocumentGetPageAtIndex(in pPDFDocumen
 
 private foreign handler ObjC_NSAppWindowWithWindowNumber(in pObj as ObjcId, in pWindowNumber as CLong) returns ObjcId binds to "objc:NSApplication.-windowWithWindowNumber:"
 
+-------------------------------------------------------------------- Utility Handlers ----------------------------------------------------------------------------
 public handler LogNSObjectClassName(in tNSObj as optional ObjcId)
    variable tOSStatus as CSInt
    variable tNSStrObj as optional ObjcId
@@ -135,6 +136,81 @@ public handler LogNSObjectClassName(in tNSObj as optional ObjcId)
    else
       log "No Object"
    end if
+end handler
+
+
+-- tell native layer that we can't render a snapshot of the view.
+-- MCWidgetSetMyNativeLayerCanRenderToContext(false)
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+/**
+Syntax:
+set the PDFPath of <widget> to <pPath>
+get the PDFPath of <widget>
+
+Summary: The File Path of the PDF to display in the widget
+
+Value (string): The PDF File Path if any.
+
+Example:
+on mouesUp
+    set the PDFPath of "My PDF View" to "Applications/Utilities/System Information.app/Contents/Resources/ProductGuides/ENERGY STAR.pdf"
+end mouesUp
+
+Description:
+Use the <PDFPath> property to get or set the path of the PDF file
+being displayed by the widget.
+*/
+
+property "PDFURL" get mPDFURL set setPDFURL
+metadata PDFURL.label is "PDF Path"
+metadata PDFURL.default is ""
+metadata PDFURL.editor is "com.livecode.pi.nowraptext"
+-- metadata PDFURL.editor is "com.livecode.pi.url"
+private variable mPDFURL as optional String
+
+private handler SetPDFURL(in pURL as String) returns nothing
+    put pURL into mPDFURL
+    put "" into mPDFPath
+    variable tFileNSURL as ObjcId
+    variable tNSError as optional ObjcId
+     variable tNSObj as optional ObjcId
+     variable tString as String
+     variable tNumber as Integer
+    unsafe
+      -- if mPDFView is nothing then
+      --   put objC_ApplePDFKitPDFViewAlloc() into mPDFView
+      --   objC_ApplePDFKitPDFViewInit(mPDFView)
+      -- end if
+      if pURL is the empty string then
+         put nothing into mPDFView
+         put "" into mPDFURL
+      else
+         -- set the PDFURL of widget 1 to "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+         put objC_NSURLURLWithString(StringToNSString(pURL)) into tFileNSURL
+         put objC_ApplePDFKitPDFDocumentAlloc() into mPDFDocument
+         put objC_ApplePDFKitPDFDocumentInitFromURL(mPDFDocument,tFileNSURL) into mPDFDocument
+         -- objC_ApplePDFKitPDFSetDocument(mPDFView,mPDFDocument)
+         if mPDFView is nothing then
+            CreatePDFView()
+         end if
+         objC_ApplePDFKitPDFViewSetValueForKey(mPDFView,mPDFDocument,StringToNSString("document"))
+         objC_ApplePDFKitPDFViewSetBoolValueForKey(mPDFView,true,StringToNSString("autoScales"))
+         objC_ApplePDFKitPDFViewNeedsDisplay(mPDFView,true)
+         if mPDFDisplayMode is nothing then
+            put 1 into mPDFDisplayMode
+         end if
+         objC_ApplePDFKitPDFViewSetValueForKey(mPDFView,NumberToNSNumber(mPDFDisplayMode),StringToNSString("displayMode"))
+         -- kPDFDisplaySinglePage = 0
+         -- kPDFDisplaySinglePageContinuous = 1
+         -- kPDFDisplayTwoUp = 2
+         -- kkPDFDisplayTwoUpContinuous = 3
+         UpdatePDFView()
+         -- log [tFileNSURL, mPDFPath,mPDFDocument,mPDFView]
+      end if
+    end unsafe
+   --  redraw all
 end handler
 
 /**
@@ -203,53 +279,6 @@ private handler SetPDFPath(in pPath as String) returns nothing
    --  redraw all
 end handler
 
-property "PDFURL" get mPDFURL set setPDFURL
-metadata PDFURL.label is "PDF Path"
-metadata PDFURL.default is ""
-metadata PDFURL.editor is "com.livecode.pi.url"
-private variable mPDFURL as optional String
-private handler SetPDFURL(in pURL as String) returns nothing
-    put pURL into mPDFURL
-    put "" into mPDFPath
-    variable tFileNSURL as ObjcId
-    variable tNSError as optional ObjcId
-     variable tNSObj as optional ObjcId
-     variable tString as String
-     variable tNumber as Integer
-    unsafe
-      -- if mPDFView is nothing then
-      --   put objC_ApplePDFKitPDFViewAlloc() into mPDFView
-      --   objC_ApplePDFKitPDFViewInit(mPDFView)
-      -- end if
-      if pURL is the empty string then
-         put nothing into mPDFView
-         put "" into mPDFURL
-      else
-         -- set the PDFURL of widget 1 to "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
-         put objC_NSURLURLWithString(StringToNSString(pURL)) into tFileNSURL
-         put objC_ApplePDFKitPDFDocumentAlloc() into mPDFDocument
-         put objC_ApplePDFKitPDFDocumentInitFromURL(mPDFDocument,tFileNSURL) into mPDFDocument
-         -- objC_ApplePDFKitPDFSetDocument(mPDFView,mPDFDocument)
-         if mPDFView is nothing then
-            CreatePDFView()
-         end if
-         objC_ApplePDFKitPDFViewSetValueForKey(mPDFView,mPDFDocument,StringToNSString("document"))
-         objC_ApplePDFKitPDFViewSetBoolValueForKey(mPDFView,true,StringToNSString("autoScales"))
-         objC_ApplePDFKitPDFViewNeedsDisplay(mPDFView,true)
-         if mPDFDisplayMode is nothing then
-            put 1 into mPDFDisplayMode
-         end if
-         objC_ApplePDFKitPDFViewSetValueForKey(mPDFView,NumberToNSNumber(mPDFDisplayMode),StringToNSString("displayMode"))
-         -- kPDFDisplaySinglePage = 0
-         -- kPDFDisplaySinglePageContinuous = 1
-         -- kPDFDisplayTwoUp = 2
-         -- kkPDFDisplayTwoUpContinuous = 3
-         UpdatePDFView()
-         -- log [tFileNSURL, mPDFPath,mPDFDocument,mPDFView]
-      end if
-    end unsafe
-   --  redraw all
-end handler
 /**
 Syntax:
 set the PDFDisplayMode of <widget> to <PDFDisplayMode>
@@ -257,16 +286,17 @@ get the PDFDisplayMode of <widget>
 
 Summary: The mode to display the PDF in the widget
 
-Value (string): The PDF File Path if any.
+Value (string): An item from Single,Single-Continuous,TwoUp,TwoUp-Continuous
 
 Example:
 on mouesUp
-    set the PDFPath of "My PDF View" to "Applications/Utilities/System Information.app/Contents/Resources/ProductGuides/ENERGY STAR.pdf"
+   -- display only one page at a time
+    set the PDFDisplayMode of "My PDF View" to "Single"
 end mouesUp
 
 Description:
-Use the <PDFPath> property to get or set the path of the PDF file
-being displayed by the widget.
+Use the <PDFDisplayMode> property to get or set the style in which
+pages are displayed by the widget. Use "Single" for one page at a time.
 */
 property "PDFDisplayMode" get getPDFDisplayMode set setPDFDisplayMode
 metadata PDFDisplayMode.label is "PDF Path"
@@ -506,16 +536,18 @@ public handler OnClose()
     end if
 end handler
 
-public handler OnPaint()
+public handler OnPaint() returns nothing
    -- put this canvas into mCanvas
    -- if my native layer is nothing then
    -- if mPDFView is nothing and mPDFPath is the empty string then
-      paintPlaceholderImage( this canvas, my bounds, kSvgIcon, "Apple PDFView", nothing, nothing)
+   paintPlaceholderImage(this canvas, my bounds, kSvgIcon, my name, nothing, nothing)
+
+      -- paintPlaceholderImage( this canvas, my bounds, kSvgIcon, "Apple PDFView", nothing, nothing)
    --end if
-   if mPDFPath is not the empty string or mPDFPath is not nothing then
+   -- if mPDFPath is not the empty string or mPDFPath is not nothing then
    --   log mPDFPath
-      UpdatePDFView()
-   end if
+   --   UpdatePDFView()
+   -- end if
 end handler
 
 

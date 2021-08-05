@@ -45,7 +45,29 @@ Description:
 Use the <returnKey> message to respond to the user pressing the return
 key whilst the field is focused.
 
-Name: PDFDisplayMode
+Name: PDFURL
+
+Type: property
+
+Syntax: set the PDFPath of <widget> to <pPath>
+get the PDFPath of <widget>
+
+Summary: The File Path of the PDF to display in the widget
+
+Value: The PDF File Path if any.
+
+Example:
+on mouesUp
+    set the PDFPath of "My PDF View" to "Applications/Utilities/System Information.app/Contents/Resources/ProductGuides/ENERGY STAR.pdf"
+end mouesUp
+
+Description:
+Use the <PDFPath> property to get or set the path of the PDF file
+being displayed by the widget.
+
+
+
+Name: PDFPageLabel
 
 Type: property
 
@@ -89,7 +111,7 @@ being displayed by the widget.
 
 
 
-Name: PDFPageLabel
+Name: PDFDisplayMode
 
 Type: property
 
@@ -98,16 +120,17 @@ get the PDFDisplayMode of <widget>
 
 Summary: The mode to display the PDF in the widget
 
-Value: The PDF File Path if any.
+Value: An item from Single,Single-Continuous,TwoUp,TwoUp-Continuous
 
 Example:
 on mouesUp
-    set the PDFPath of "My PDF View" to "Applications/Utilities/System Information.app/Contents/Resources/ProductGuides/ENERGY STAR.pdf"
+   -- display only one page at a time
+    set the PDFDisplayMode of "My PDF View" to "Single"
 end mouesUp
 
 Description:
-Use the <PDFPath> property to get or set the path of the PDF file
-being displayed by the widget.
+Use the <PDFDisplayMode> property to get or set the style in which
+pages are displayed by the widget. Use "Single" for one page at a time.
 
 
 
