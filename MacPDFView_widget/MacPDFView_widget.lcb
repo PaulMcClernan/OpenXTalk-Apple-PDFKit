@@ -107,7 +107,7 @@ private foreign handler objC_ApplePDFKitPDFViewNextPage(in pPDFView as ObjcId, i
 private foreign handler objC_ApplePDFKitPDFViewPrevPage(in pPDFView as ObjcId, in pSender as optional ObjcId ) returns nothing binds to "objc:PDFView.-goToPreviousPage:"
 private foreign handler objC_ApplePDFKitPDFViewFirstPage(in pPDFView as ObjcId, in pSender as optional ObjcId ) returns nothing binds to "objc:PDFView.-goToFirstPage:"
 private foreign handler objC_ApplePDFKitPDFViewLastPage(in pPDFView as ObjcId, in pSender as optional ObjcId ) returns nothing binds to "objc:PDFView.-goToLastPage:"
-
+private foreign handler objC_ApplePDFKitPDFViewGoPage(in pPDFView as ObjcId, in pPDFPage as ObjcId ) returns nothing binds to "objc:PDFView.-goToPage:"
 
 private foreign handler objC_ApplePDFKitPDFPageGetValueForKey(in pPDFPage as ObjcId, in pSelector as ObjcId) returns optional ObjcId binds to "objc:PDFView.-valueForKey:"
 
@@ -116,6 +116,9 @@ private foreign handler objC_ApplePDFKitPDFDocumentAlloc() returns ObjcRetainedI
 private foreign handler objC_ApplePDFKitPDFDocumentInitFromURL(in pPDFDocument as ObjcRetainedId, in pNSURL as ObjcId) returns ObjcRetainedId binds to "objc:PDFDocument.-initWithURL:"
 --private foreign handler objC_ApplePDFKitPDFDocumentGetPageCount(in pPDFDocument as ObjcId) returns ObjcId binds to "objc:PDFDocument.pageCount"
 private foreign handler objC_ApplePDFKitPDFDocumentValueForKey(in pPDFDocument as ObjcId, in pSelector as ObjcId) returns ObjcId binds to "objc:PDFDocument.-valueForKey:"
+private foreign handler objC_ApplePDFKitPDFDocumentSetValueForKey(in pPDFDocument as ObjcId, in pValue as ObjcId, in pSelector as ObjcId) returns ObjcId binds to "objc:PDFDocument.-setValue:forKey:"
+private foreign handler objC_ApplePDFKitPDFDocumentGetPageAtIndex(in pPDFDocument as ObjcId, in pIndexNSNumb as CUint) returns ObjcId binds to "objc:PDFDocument.pageAtIndex:"
+-- private foreign handler objC_ApplePDFKitPDFDocumentGetPageAtIndex(in pPDFDocument as ObjcId, in pIndexNSNumb as ObjcId) returns ObjcId binds to "objc:PDFDocument.-pageAtIndex:"
 
 private foreign handler ObjC_NSAppWindowWithWindowNumber(in pObj as ObjcId, in pWindowNumber as CLong) returns ObjcId binds to "objc:NSApplication.-windowWithWindowNumber:"
 
@@ -160,6 +163,7 @@ private variable mPDFPath as optional String
 
 private handler SetPDFPath(in pPath as String) returns nothing
     put pPath into mPDFPath
+    put "" into mPDFURL
     variable tFileNSURL as ObjcId
     variable tNSError as optional ObjcId
      variable tNSObj as optional ObjcId
@@ -175,6 +179,54 @@ private handler SetPDFPath(in pPath as String) returns nothing
          put "" into mPDFPath
       else
          put objC_NSURLfileURLWithPath(StringToNSString(pPath)) into tFileNSURL
+         put objC_ApplePDFKitPDFDocumentAlloc() into mPDFDocument
+         put objC_ApplePDFKitPDFDocumentInitFromURL(mPDFDocument,tFileNSURL) into mPDFDocument
+         -- objC_ApplePDFKitPDFSetDocument(mPDFView,mPDFDocument)
+         if mPDFView is nothing then
+            CreatePDFView()
+         end if
+         objC_ApplePDFKitPDFViewSetValueForKey(mPDFView,mPDFDocument,StringToNSString("document"))
+         objC_ApplePDFKitPDFViewSetBoolValueForKey(mPDFView,true,StringToNSString("autoScales"))
+         objC_ApplePDFKitPDFViewNeedsDisplay(mPDFView,true)
+         if mPDFDisplayMode is nothing then
+            put 1 into mPDFDisplayMode
+         end if
+         objC_ApplePDFKitPDFViewSetValueForKey(mPDFView,NumberToNSNumber(mPDFDisplayMode),StringToNSString("displayMode"))
+         -- kPDFDisplaySinglePage = 0
+         -- kPDFDisplaySinglePageContinuous = 1
+         -- kPDFDisplayTwoUp = 2
+         -- kkPDFDisplayTwoUpContinuous = 3
+         UpdatePDFView()
+         -- log [tFileNSURL, mPDFPath,mPDFDocument,mPDFView]
+      end if
+    end unsafe
+   --  redraw all
+end handler
+
+property "PDFURL" get mPDFURL set setPDFURL
+metadata PDFURL.label is "PDF Path"
+metadata PDFURL.default is ""
+metadata PDFURL.editor is "com.livecode.pi.url"
+private variable mPDFURL as optional String
+private handler SetPDFURL(in pURL as String) returns nothing
+    put pURL into mPDFURL
+    put "" into mPDFPath
+    variable tFileNSURL as ObjcId
+    variable tNSError as optional ObjcId
+     variable tNSObj as optional ObjcId
+     variable tString as String
+     variable tNumber as Integer
+    unsafe
+      -- if mPDFView is nothing then
+      --   put objC_ApplePDFKitPDFViewAlloc() into mPDFView
+      --   objC_ApplePDFKitPDFViewInit(mPDFView)
+      -- end if
+      if pURL is the empty string then
+         put nothing into mPDFView
+         put "" into mPDFURL
+      else
+         -- set the PDFURL of widget 1 to "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+         put objC_NSURLURLWithString(StringToNSString(pURL)) into tFileNSURL
          put objC_ApplePDFKitPDFDocumentAlloc() into mPDFDocument
          put objC_ApplePDFKitPDFDocumentInitFromURL(mPDFDocument,tFileNSURL) into mPDFDocument
          -- objC_ApplePDFKitPDFSetDocument(mPDFView,mPDFDocument)
@@ -222,7 +274,7 @@ metadata PDFDisplayMode.default is "1"
 -- metadata PDFDisplayMode.editor is "com.livecode.pi.number"
 metadata PDFDisplayMode.editor is "com.livecode.pi.enum"
 metadata PDFDisplayMode.options is "Single,Single-Continuous,TwoUp,TwoUp-Continuous"
-metadata PDFDisplayMode.default is "1"
+metadata PDFDisplayMode.default is "Single"
 metadata PDFDisplayMode.label is "PDF Display Mode"
 
 private variable mPDFDisplayMode as Number
@@ -359,16 +411,21 @@ private handler getPDFPageText() returns optional any
    --  redraw all
 end handler
 
+
 property "PDFViewGoPage" get getPDFViewGoPage set setPDFViewGoPage
 private handler getPDFViewGoPage() returns optional any
     return
 end handler
 private handler setPDFViewGoPage(in pGoToPage as optional any) returns optional any
    variable tNSObj as optional ObjcId
+   variable tPDFPage as optional ObjcId
+
+   variable tNumber as Number
+      variable tPDFDocumentPageCount as Number
    if pGoToPage is nothing or pGoToPage is the empty string then
       return ""
    end if
-   if mPDFView is not nothing then
+   if mPDFView is not nothing and mPDFDocument is not nothing then
       unsafe
          if pGoToPage is "Next" or pGoToPage is "next" or pGoToPage is ">" then
             -- put objC_ApplePDFKitPDFViewNextPage(mPDFView, nothing) into tNSObj
@@ -383,6 +440,25 @@ private handler setPDFViewGoPage(in pGoToPage as optional any) returns optional 
          else if pGoToPage is "Last" or pGoToPage is "last"  then
             -- put objC_ApplePDFKitPDFViewPrevPage(mPDFView, nothing) into tNSObj
             objC_ApplePDFKitPDFViewLastPage(mPDFView, nothing)
+         else if (pGoToPage parsed as number) is not nothing then
+            put objC_ApplePDFKitPDFDocumentValueForKey(mPDFDocument,StringToNSString("pageCount")) into tNSObj
+            put NumberFromNSNumber(tNSObj) into tPDFDocumentPageCount
+            put tPDFDocumentPageCount + 0 into tPDFDocumentPageCount
+            -- log tPDFDocumentPageCount
+            put (pGoToPage parsed as number) into tNumber
+            if tNumber > 0 and tNumber <= tPDFDocumentPageCount then
+               put objC_ApplePDFKitPDFDocumentGetPageAtIndex(mPDFDocument,tNumber -1) into tPDFPage -- pageAtIndex:
+               -- put objC_ApplePDFKitPDFDocumentGetPageAtIndex(mPDFDocument,NumberToNSNumber(tNumber)) into tPDFPage -- pageAtIndex:
+               --put objC_ApplePDFKitPDFDocumentSetValueForKey(mPDFDocument,NumberToNSNumber(tNumber),StringToNSString("pageAtIndex")) into tPDFPage
+               if tPDFPage is not nothing then
+                  objC_ApplePDFKitPDFViewGoPage(mPDFView,tPDFPage)
+                  -- log [tPDFPage,tNumber]
+               else
+                  log "error loading page object"
+               end if
+            else
+               log  "error loading page, out of range"
+            end if
          end if
          UpdatePDFView()
       end unsafe
@@ -433,9 +509,9 @@ end handler
 public handler OnPaint()
    -- put this canvas into mCanvas
    -- if my native layer is nothing then
-   if mPDFView is nothing and mPDFPath is the empty string then
+   -- if mPDFView is nothing and mPDFPath is the empty string then
       paintPlaceholderImage( this canvas, my bounds, kSvgIcon, "Apple PDFView", nothing, nothing)
-   end if
+   --end if
    if mPDFPath is not the empty string or mPDFPath is not nothing then
    --   log mPDFPath
       UpdatePDFView()
