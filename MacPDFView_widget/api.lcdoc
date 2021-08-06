@@ -2,7 +2,7 @@ Library: com.livecode.widget.applepdfkit.paulmcclernan
 
 Type: widget
 
-Summary: This widget wraps Apple's PDFKit and PDFView available on macOS (since 10.4) and iOS (11)
+Summary: This widget wraps parts of Apple's PDFKit API available on macOS (since 10.4) and iOS (11)
 
 version: 0.1
 
@@ -41,29 +41,69 @@ on returnKey
     end if
 end returnKey
 
+Name: mouseLeave
+
+Type: message
+
+Syntax: on mouseLeave
+
+Summary: Sent when the cursor leaves the widget area.
+
+Example:
+on mouseLeave
+    put "Current Page Label" & the PDFPageLabel of widget "Apple PDFView Widget"
+end mouseLeave
+
 Description:
 Use the <returnKey> message to respond to the user pressing the return
 key whilst the field is focused.
+
+Name: PDFViewGoPage
+
+Type: property
+
+Syntax: set the PDFViewGoPage of <widget> to "Next"
+
+Summary: Set the PDFViewGoPage to navigate through a PDF Document.
+
+Value: Either a page number or navigational command.
+
+Example:
+on mouesUp
+    set the PDFViewGoPage of "My PDF View" to "Last" -- go to last page of PDF
+    wait 3
+    set the PDFViewGoPage of "My PDF View" to "Previous" -- now 2nd from last page
+    wait 3
+    set the PDFViewGoPage of "My PDF View" to 7 -- now go to page 7
+end mouesUp
+
+Description:
+Set the <PDFViewGoPage> property to mavigate though a PDF.
+Use a page number to go to that page, if it exists, in the PDF, or use a
+navigational command, which can be any of the following item list:
+Next,next,>,Previous,previous,Prev,prev,<,First,first,Last,last.
+
+
 
 Name: PDFURL
 
 Type: property
 
-Syntax: set the PDFPath of <widget> to <pPath>
-get the PDFPath of <widget>
+Syntax: set the PDFURL of <widget> to <url>
+get the PDFURL of <widget>
 
-Summary: The File Path of the PDF to display in the widget
+Summary: The URL of the PDF for display.
 
-Value: The PDF File Path if any.
+Value: The PDF URL if any.
 
 Example:
 on mouesUp
-    set the PDFPath of "My PDF View" to "Applications/Utilities/System Information.app/Contents/Resources/ProductGuides/ENERGY STAR.pdf"
+    set the PDFURL of "My PDF View" to "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
 end mouesUp
 
 Description:
-Use the <PDFPath> property to get or set the path of the PDF file
-being displayed by the widget.
+Use the <PDFURL> property to get or set the URL of the PDF file being displayed
+by the widget. A URL can be a local file:// URL or a remote (such as https//) URL.
 
 
 
@@ -71,21 +111,43 @@ Name: PDFPageLabel
 
 Type: property
 
-Syntax: set the PDFDisplayMode of <widget> to <PDFDisplayMode>
-get the PDFDisplayMode of <widget>
+Syntax: get the PDFPageLabel of <widget>
 
-Summary: The mode to display the PDF in the widget
+Summary: The label of the current page as embedded in the current PDF.
 
-Value: The PDF File Path if any.
+Value: The current page label.
 
 Example:
 on mouesUp
-    set the PDFPath of "My PDF View" to "Applications/Utilities/System Information.app/Contents/Resources/ProductGuides/ENERGY STAR.pdf"
+    put the PDFPageLabel of "My PDF View" into fld "Folio"
 end mouesUp
 
 Description:
-Use the <PDFPath> property to get or set the path of the PDF file
-being displayed by the widget.
+The  of the current page as embedded in the current PDF.
+Get the <PDFPageLabel> property to get any embedded folio label of the current page.
+The label is a not neccessarily equivalent to the page number and could be
+something like "Index IV" for example.
+
+
+
+Name: PDFPageText
+
+Type: property
+
+Syntax: get the PDFPageText of <widget>
+
+Summary: The text, if any, embedded in the current page of the PDF.
+
+Value: The current page label.
+
+Example:
+on mouesUp
+    put the PDFPageText of "My PDF View" into fld "PDF Page Text Dump"
+end mouesUp
+
+Description:
+Get the <PDFPageText> property to get any text that may, or may not be embedded
+in the current page of the PDF.
 
 
 
@@ -130,7 +192,8 @@ end mouesUp
 
 Description:
 Use the <PDFDisplayMode> property to get or set the style in which
-pages are displayed by the widget. Use "Single" for one page at a time.
+pages are displayed by the widget. For example, use "Single" to display
+one page at a time.
 
 
 
