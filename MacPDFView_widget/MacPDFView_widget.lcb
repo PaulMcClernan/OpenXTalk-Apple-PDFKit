@@ -3,7 +3,7 @@ Copyright (C) 2021 Paul McClernan
  */
 
 /**
-This widget wraps Apple's PDFKit and PDFView available on macOS (since 10.4) and iOS (11)
+This widget wraps parts of Apple's PDFKit API available on macOS (since 10.4) and iOS (11)
 
 Name: enabled
 
@@ -36,6 +36,19 @@ on returnKey
       answer "Invalid number entered!"
     end if
 end returnKey
+
+Name: mouseLeave
+
+Syntax: on mouseLeave
+
+Type: message
+
+Summary: Sent when the cursor leaves the widget area.
+
+Example:
+on mouseLeave
+    put "Current Page Label" & the PDFPageLabel of widget "Apple PDFView Widget"
+end mouseLeave
 
 Description:
 Use the <returnKey> message to respond to the user pressing the return
@@ -138,33 +151,31 @@ public handler LogNSObjectClassName(in tNSObj as optional ObjcId)
    end if
 end handler
 
-
 -- tell native layer that we can't render a snapshot of the view.
 -- MCWidgetSetMyNativeLayerCanRenderToContext(false)
 ------------------------------------------------------------------------------------------------------------------------------------------------
 
-
 /**
 Syntax:
-set the PDFPath of <widget> to <pPath>
-get the PDFPath of <widget>
+set the PDFURL of <widget> to <url>
+get the PDFURL of <widget>
 
-Summary: The File Path of the PDF to display in the widget
+Summary: The URL of the PDF for display.
 
-Value (string): The PDF File Path if any.
+Value (string): The PDF URL if any.
 
 Example:
 on mouesUp
-    set the PDFPath of "My PDF View" to "Applications/Utilities/System Information.app/Contents/Resources/ProductGuides/ENERGY STAR.pdf"
+    set the PDFURL of "My PDF View" to "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
 end mouesUp
 
 Description:
-Use the <PDFPath> property to get or set the path of the PDF file
-being displayed by the widget.
+Use the <PDFURL> property to get or set the URL of the PDF file being displayed
+by the widget. A URL can be a local file:// URL or a remote (such as https//) URL.
 */
 
 property "PDFURL" get mPDFURL set setPDFURL
-metadata PDFURL.label is "PDF Path"
+metadata PDFURL.label is "PDF URL"
 metadata PDFURL.default is ""
 metadata PDFURL.editor is "com.livecode.pi.nowraptext"
 -- metadata PDFURL.editor is "com.livecode.pi.url"
@@ -206,7 +217,8 @@ private handler SetPDFURL(in pURL as String) returns nothing
          -- kPDFDisplaySinglePageContinuous = 1
          -- kPDFDisplayTwoUp = 2
          -- kkPDFDisplayTwoUpContinuous = 3
-         UpdatePDFView()
+         redraw all
+         -- UpdatePDFView()
          -- log [tFileNSURL, mPDFPath,mPDFDocument,mPDFView]
       end if
     end unsafe
@@ -255,6 +267,8 @@ private handler SetPDFPath(in pPath as String) returns nothing
          put "" into mPDFPath
       else
          put objC_NSURLfileURLWithPath(StringToNSString(pPath)) into tFileNSURL
+         put objC_NSURLGetAbsoluteString(tFileNSURL) into tNSObj
+         put StringFromNSString(tNSObj) into mPDFURL
          put objC_ApplePDFKitPDFDocumentAlloc() into mPDFDocument
          put objC_ApplePDFKitPDFDocumentInitFromURL(mPDFDocument,tFileNSURL) into mPDFDocument
          -- objC_ApplePDFKitPDFSetDocument(mPDFView,mPDFDocument)
@@ -272,7 +286,8 @@ private handler SetPDFPath(in pPath as String) returns nothing
          -- kPDFDisplaySinglePageContinuous = 1
          -- kPDFDisplayTwoUp = 2
          -- kkPDFDisplayTwoUpContinuous = 3
-         UpdatePDFView()
+         redraw all
+         -- UpdatePDFView()
          -- log [tFileNSURL, mPDFPath,mPDFDocument,mPDFView]
       end if
     end unsafe
@@ -296,7 +311,8 @@ end mouesUp
 
 Description:
 Use the <PDFDisplayMode> property to get or set the style in which
-pages are displayed by the widget. Use "Single" for one page at a time.
+pages are displayed by the widget. For example, use "Single" to display
+one page at a time.
 */
 property "PDFDisplayMode" get getPDFDisplayMode set setPDFDisplayMode
 metadata PDFDisplayMode.label is "PDF Path"
@@ -377,21 +393,22 @@ end handler
 
 /**
 Syntax:
-set the PDFDisplayMode of <widget> to <PDFDisplayMode>
-get the PDFDisplayMode of <widget>
+get the PDFPageLabel of <widget>
 
-Summary: The mode to display the PDF in the widget
+Summary: The label of the current page as embedded in the current PDF.
 
-Value (string): The PDF File Path if any.
+Value (string): The current page label.
 
 Example:
 on mouesUp
-    set the PDFPath of "My PDF View" to "Applications/Utilities/System Information.app/Contents/Resources/ProductGuides/ENERGY STAR.pdf"
+    put the PDFPageLabel of "My PDF View" into fld "Folio"
 end mouesUp
 
 Description:
-Use the <PDFPath> property to get or set the path of the PDF file
-being displayed by the widget.
+The  of the current page as embedded in the current PDF.
+Get the <PDFPageLabel> property to get any embedded folio label of the current page.
+The label is a not neccessarily equivalent to the page number and could be
+something like "Index IV" for example.
 */
 property "PDFPageLabel" get getPDFPageLabel -- set setPDFDisplayMode
 metadata PDFPageLabel.label is "PDF Page Label"
@@ -418,6 +435,23 @@ private handler getPDFPageLabel() returns optional any
    --  redraw all
 end handler
 
+/**
+Syntax:
+get the PDFPageText of <widget>
+
+Summary: The text, if any, embedded in the current page of the PDF.
+
+Value (string): The current page label.
+
+Example:
+on mouesUp
+    put the PDFPageText of "My PDF View" into fld "PDF Page Text Dump"
+end mouesUp
+
+Description:
+Get the <PDFPageText> property to get any text that may, or may not be embedded
+in the current page of the PDF.
+*/
 property "PDFPageText" get getPDFPageText -- set setPDFDisplayMode
 metadata PDFPageText.label is "PDF Page Text"
 metadata PDFPageText.default is ""
@@ -441,7 +475,29 @@ private handler getPDFPageText() returns optional any
    --  redraw all
 end handler
 
+/**
+Syntax:
+set the PDFViewGoPage of <widget> to "Next"
 
+Summary: Set the PDFViewGoPage to navigate through a PDF Document.
+
+Value (string): Either a page number or navigational command.
+
+Example:
+on mouesUp
+    set the PDFViewGoPage of "My PDF View" to "Last" -- go to last page of PDF
+    wait 3
+    set the PDFViewGoPage of "My PDF View" to "Previous" -- now 2nd from last page
+    wait 3
+    set the PDFViewGoPage of "My PDF View" to 7 -- now go to page 7
+end mouesUp
+
+Description:
+Set the <PDFViewGoPage> property to mavigate though a PDF.
+Use a page number to go to that page, if it exists, in the PDF, or use a
+navigational command, which can be any of the following item list:
+Next,next,>,Previous,previous,Prev,prev,<,First,first,Last,last.
+*/
 property "PDFViewGoPage" get getPDFViewGoPage set setPDFViewGoPage
 private handler getPDFViewGoPage() returns optional any
     return
@@ -449,7 +505,6 @@ end handler
 private handler setPDFViewGoPage(in pGoToPage as optional any) returns optional any
    variable tNSObj as optional ObjcId
    variable tPDFPage as optional ObjcId
-
    variable tNumber as Number
       variable tPDFDocumentPageCount as Number
    if pGoToPage is nothing or pGoToPage is the empty string then
@@ -546,10 +601,13 @@ public handler OnPaint() returns nothing
    --end if
    -- if mPDFPath is not the empty string or mPDFPath is not nothing then
    --   log mPDFPath
-   --   UpdatePDFView()
+   --  UpdatePDFView()
    -- end if
 end handler
 
+public handler OnMouseLeave()
+  post "mouseLeave"
+end handler
 
 public handler OnStartEditing()
    if mPDFView is not nothing then
@@ -583,6 +641,7 @@ public handler OnSave(out rProperties as Array)
    -- UpdatePDFView()
     --  end unsafe
    put mPDFPath into rProperties["PDFPath"]
+   redraw all
 end handler
 
 public handler OnLoad(in pProperties as Array)
@@ -624,32 +683,34 @@ end handler
 -- end handler
 
 private handler CreatePDFView()
-   unsafe
-      -- variable tPDFView as ObjcObject
-      put objC_ApplePDFKitPDFViewAlloc() into mPDFView
-      objC_ApplePDFKitPDFViewInit(mPDFView)
-      -- if mPDFPath is empty then
-      --    put "/Applications/Utilities/System Information.app/Contents/Resources/ProductGuides/ENERGY STAR.pdf" into mPDFPath
-      -- end if
+   if (the operating system is "mac") or (the operating system is "ios") then
+      unsafe
+         -- variable tPDFView as ObjcObject
+         put objC_ApplePDFKitPDFViewAlloc() into mPDFView
+         objC_ApplePDFKitPDFViewInit(mPDFView)
+         -- if mPDFPath is empty then
+         --    put "/Applications/Utilities/System Information.app/Contents/Resources/ProductGuides/ENERGY STAR.pdf" into mPDFPath
+         -- end if
 
-      --put objC_NSURLfileURLWithPath(StringToNSString(pPathToPDFStr)) into tFileNSURL
-      --put objC_ApplePDFKitPDFDocumentAlloc() into mPDFDocument
-      -- put objC_ApplePDFKitPDFDocumentInitFromURL(mPDFDocument,tFileNSURL) into mPDFDocument
+         --put objC_NSURLfileURLWithPath(StringToNSString(pPathToPDFStr)) into tFileNSURL
+         --put objC_ApplePDFKitPDFDocumentAlloc() into mPDFDocument
+         -- put objC_ApplePDFKitPDFDocumentInitFromURL(mPDFDocument,tFileNSURL) into mPDFDocument
 
-       -- put ObjC_NSTextFieldInit(tTextFieldView) into tTextFieldView
+          -- put ObjC_NSTextFieldInit(tTextFieldView) into tTextFieldView
 
-       set my native layer to PointerFromObjcObject(mPDFView)
-       -- put tPDFView into mPDFView
+          set my native layer to PointerFromObjcObject(mPDFView)
+          -- put tPDFView into mPDFView
 
-      -- put ObjcProxyGetTarget(genericActionCallback, nothing) into mTextFieldProxy
-       -- ObjC_NSTextFieldSetTarget(mTextFieldView, mTextFieldProxy)
-       -- ObjC_NSTextFieldSetAction(mTextFieldView, ObjcProxyGetAction())
+         -- put ObjcProxyGetTarget(genericActionCallback, nothing) into mTextFieldProxy
+          -- ObjC_NSTextFieldSetTarget(mTextFieldView, mTextFieldProxy)
+          -- ObjC_NSTextFieldSetAction(mTextFieldView, ObjcProxyGetAction())
 
-       -- ObjC_NSTextFieldSetBezelStyle(mTextFieldView, kNSTextFieldBezelStyleSquare)
+          -- ObjC_NSTextFieldSetBezelStyle(mTextFieldView, kNSTextFieldBezelStyleSquare)
 
-      --  UpdateTextFieldView()
-      --  UpdateTextFieldProperties()
-   end unsafe
+         --  UpdateTextFieldView()
+         --  UpdateTextFieldProperties()
+      end unsafe
+   end if
 end handler
 
 private unsafe handler DestroyPDFView()
@@ -660,7 +721,6 @@ private unsafe handler DestroyPDFView()
 end handler
 
 private handler UpdatePDFView()
-
     if mPDFDocument is nothing then
    --   paintPlaceholderImage(this canvas, my bounds, kSvgIcon, my name, my font, nothing)
       return
@@ -671,7 +731,7 @@ private handler UpdatePDFView()
           -- ObjC_NSTextFieldSetFont(mTextFieldView, tFontToUse)
           -- objC_ApplePDFKitPDFViewSetValueForKey(mPDFView,mPDFDocument,StringToNSString("document"))
       --  end unsafe
-      -- redraw all
+      --
       if mPDFView is nothing then
          CreatePDFView()
       else
@@ -680,43 +740,6 @@ private handler UpdatePDFView()
          end unsafe
       end if
    end if
-end handler
-
-public handler PDFKitLoadPDFFromPDFPath(in pPathToPDFStr as String) returns nothing
-	if (the operating system is "mac") or (the operating system is "ios") then
-		--- need NSURL objects to pass to AVMIDIplayer
-		variable tFileNSURL as ObjcId
-
-		--- need NSError object to pass to AVMIDIplayer
-		variable tNSError as optional ObjcId
-      variable tNSObj as optional ObjcId
-      variable tString as String
-      variable tNumber as Integer
-
-		-- variable tIsDir as optional CBool
-		-- put false into tIsDir
-		unsafe
-
-         put objC_ApplePDFKitPDFViewAlloc() into mPDFView
-         objC_ApplePDFKitPDFViewInit(mPDFView)
-
-			put objC_NSURLfileURLWithPath(StringToNSString(pPathToPDFStr)) into tFileNSURL
-         put objC_ApplePDFKitPDFDocumentAlloc() into mPDFDocument
-         put objC_ApplePDFKitPDFDocumentInitFromURL(mPDFDocument,tFileNSURL) into mPDFDocument
-
-         -- LogNSObjectClassName(tFileNSURL)
-         -- LogNSObjectClassName(mPDFView)
-         -- LogNSObjectClassName(mPDFDocument)
-
-         -- put objC_ApplePDFKitPDFDocumentValueForKey(mPDFDocument,StringToNSString("pageCount")) into tNSObj
-         --log tNSObj
-         -- put NumberFromNSNumber(tNSObj) into tNumber
-         --   log ["PageCount",tNumber]
-         -- put objC_ApplePDFKitPDFDocumentValueForKey(mPDFDocument,StringToNSString("string")) into tNSObj
-         -- put StringFromNSString(tNSObj) into tString
-         -- log tString
-		end unsafe
-	end if
    redraw all
 end handler
 
