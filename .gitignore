@@ -12,3 +12,6 @@ old/._MacPDFView_widget.lcb~
 MacPDFView_widget/._Tester.livecode
 MacPDFView_widget/com.livecode.widget.applepdfkit.paulmcclernan.0.1.lce
 MacPDFView_widget/._ApplePDFKit_Widget_Demo.livecode
+._PDFKitTester copy.livecode
+manifest.xml
+module.2.lcm

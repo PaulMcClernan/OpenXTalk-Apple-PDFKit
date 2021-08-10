@@ -64,72 +64,48 @@ private variable mPDFDocument as optional ObjcObject
 private variable sMyWindowController as optional ObjcObject
 private variable sPDFViewController as optional ObjcObject
 
+-------------------------------------------------------------- NSApplication ------------------------------------------------------------------------------
 private foreign handler ObjC_NSApplicationSharedApplication() returns ObjcId binds to "objc:NSApplication.+sharedApplication"
+private foreign handler ObjC_NSAppWindowWithWindowNumber(in pObj as ObjcId, in pWindowNumber as CLong) returns ObjcId binds to "objc:NSApplication.-windowWithWindowNumber:"
+-------------------------------------------------------------- NSURL ------------------------------------------------------------------------------
 private foreign handler objC_NSURLURLWithString(in pURLString as ObjcId) returns ObjcId binds to "objc:NSURL.+URLWithString:"
 private foreign handler objC_NSURLfileOrDirURLWithPath(in pPathString as ObjcId, in pIsDir as CBool) returns ObjcId binds to "objc:.NSURL.+fileURLWithPath:isDirectory:"
 private foreign handler objC_NSURLfileURLWithPath(in pPathString as ObjcId) returns ObjcId binds to "objc:NSURL.+fileURLWithPath:"
 private foreign handler objC_NSURLGetAbsoluteString(in pURLString as ObjcId) returns ObjcId binds to "objc:NSURL.absoluteString"
 private foreign handler objC_NSURLGetPath(in pURLString as ObjcId) returns ObjcId binds to "objc:NSURL.path"
-private foreign handler c_NSClassFromString(in pClassNameString as ObjcId) returns ObjcId binds to "c:NSClassFromString"
-
-private foreign handler objC_NSErrorAlloc() returns ObjcId binds to "objc:NSError.+alloc"
-private foreign handler objC_NSObjectRetain(in pNSObj as ObjcId) returns ObjcId binds to "objc:NSObject.-retain"
-private foreign handler objC_NSObjectAutoRealease(in pNSObj as ObjcId) returns ObjcId binds to "objc:NSObject.-autorelease"
-private foreign handler objC_NSObjectRelease(in pNSObj as ObjcId) returns nothing binds to "objc:NSObject.-release"
-private foreign handler objC_NSObjectDescription(in pNSObj as optional ObjcId) returns ObjcId binds to "objc:NSObject.description"
-private foreign handler objC_NSObjectClassName(in pNSObj as ObjcId) returns ObjcId binds to "objc:NSObject.className"
-private foreign handler objC_NSObjectGetSuperClass(in pNSObj as ObjcId) returns ObjcRetainedId binds to "c:NObject.+superclass:"
-
+------------------------------------------------------------ NSBundle ------------------------------------------------------------------------------
 private foreign handler ObjC_NSBundleWithURL(in pNSURL as ObjcId) returns ObjcId binds to "objc:NSBundle.+bundleWithURL:"
 private foreign handler ObjC_NSBundleGetClassNamed(in pNSbundle as ObjcId,in pClassNameNSString as ObjcId) returns ObjcId binds to "objc:NSBundle.-classNamed:"
-
+------------------------------------------------------------ NSArray / NSMutableArray ------------------------------------------------------------------------------
 private foreign handler objC_NSMutableArrayAlloc() returns ObjcRetainedId binds to "objc:NSMutableArray.+alloc"
 private foreign handler objC_NSMutableArrayInitWithCapacity(in pNSMutableArray as ObjcId, in pCapacity as NaturalFloat) returns ObjcId binds to "objc:NSMutableArray.-initWithCapacity:"
 private foreign handler objC_NSMutableArrayInitWithNSArray(in pNSMutableArray as ObjcId, in pNSArray as ObjcId) returns ObjcId binds to "objc:NSMutableArray.-initWithArray:"
-
-private foreign handler c_CFErrorCopyDescription(in pCFErrorRef as ObjcId) returns ObjcId binds to "c:CFErrorCopyDescription"
-
-private foreign handler objC_ApplePDFKitPDFViewAlloc() returns ObjcId binds to "objc:PDFView.+alloc"
-private foreign handler objC_ApplePDFKitPDFViewInit(in pPDFView as ObjcRetainedId) returns ObjcRetainedId binds to "objc:PDFView.-init"
--- private foreign handler objC_ApplePDFKitPDFSetDocument(in pPDFView as ObjcId, in pPDFDocument as ObjcId) returns nothing binds to "objc:objc:PDFView.-document:"
-private foreign handler objC_ApplePDFKitPDFViewSetValueForKey(in pPDFDocument as ObjcId, in pValue as ObjcId, in pSelector as ObjcId) returns nothing binds to "objc:PDFView.-setValue:forKey:"
-private foreign handler objC_ApplePDFKitPDFViewSetBoolValueForKey(in pPDFDocument as ObjcId, in pValue as CBool, in pSelector as ObjcId) returns nothing binds to "objc:PDFView.-setValue:forKey:"
-
-
-private foreign handler objC_ApplePDFKitPDFDocumentAlloc() returns ObjcRetainedId binds to "objc:PDFDocument.+alloc"
-private foreign handler objC_ApplePDFKitPDFDocumentInitFromURL(in pPDFDocument as ObjcRetainedId, in pNSURL as ObjcId) returns ObjcRetainedId binds to "objc:PDFDocument.-initWithURL:"
---private foreign handler objC_ApplePDFKitPDFDocumentGetPageCount(in pPDFDocument as ObjcId) returns ObjcId binds to "objc:PDFDocument.pageCount"
-private foreign handler objC_ApplePDFKitPDFDocumentValueForKey(in pPDFDocument as ObjcId, in pSelector as ObjcId) returns ObjcId binds to "objc:PDFDocument.-valueForKey:"
-
-
-
-private foreign handler ObjC_NSAppWindowWithWindowNumber(in pObj as ObjcId, in pWindowNumber as CLong) returns ObjcId binds to "objc:NSApplication.-windowWithWindowNumber:"
-
-private foreign handler ObjC_NSWindowControllerAlloc() returns ObjcRetainedId binds to "objc:NSWindowController.+alloc"
-private foreign handler ObjC_NSWindowControllerDealloc(in pObj as ObjcId) returns nothing binds to "objc:NSWindowController.-dealloc"
-private foreign handler ObjC_NSWindowControllerInitWithWindow(in pObj as ObjcRetainedId,in pNSWindow as ObjcRetainedId) returns ObjcId binds to "objc:NSWindowController.-initWithWindow:"
---private foreign handler ObjC_NSWindowControllerInitWithWindow(in pObj as ObjcId,in pNSWindow as ObjcId) returns ObjcId binds to "objc:NSWindowController.-initWithWindow:"
-
-private foreign handler ObjC_NSWindowControllerShowWindow(in pObj as ObjcId,in pNSWindow as ObjcId) returns nothing binds to "objc:NSWindowController.-showWindow:"
-private foreign handler ObjC_NSWindowControllerClose(in pNSWindowController as ObjcId) returns nothing binds to "objc:NSWindowController.-close"
-
-private foreign handler ObjC_NSWindowSetContentViewController(in pObj as ObjcId, in pViewController as ObjcId) returns nothing binds to "objc:NSWindow.-setContentView:"
-private foreign handler ObjC_NSWindowGetContentViewController(in pObj as ObjcId) returns ObjcId binds to "objc:NSWindow.-contentViewController"
-
+-------------------------------------------------------------- NSImage ------------------------------------------------------------------------------
+private foreign handler ObjC_NSImageAlloc() returns ObjcRetainedId binds to "objc:NSImage.+alloc"
+private foreign handler ObjC_NSImageInitWithData(in pObj as ObjcRetainedId, in pData as ObjcId) returns optional ObjcRetainedId binds to "objc:NSImage.-initWithData:"
+private foreign handler ObjC_NSImageInitWithContentsOfFile(in pObj as ObjcRetainedId, in pFilename as ObjcId) returns optional ObjcRetainedId binds to "objc:NSImage.-initWithContentsOfFile:"
+private foreign handler ObjC_NSImageSetTemplate(in pObj as ObjcId, in pTemplate as CBool) returns nothing binds to "objc:NSImage.-setTemplate:"
+-------------------------------------------------------------- NSWindow ------------------------------------------------------------------------------
+private foreign handler ObjC_NSWindowAlloc() returns ObjcRetainedId binds to "objc:NSWindow.+alloc"
+private foreign handler ObjC_NSWindowInitWithRectStyleBackingDefer(in pObj as ObjcRetainedId, in pRect as NSRect, in pStyleMask as CLong, in pBackingStoreType as CLong, in pDefer as CBool) \
+                                                       returns ObjcId binds to "objc:NSWindow.-initWithContentRect:styleMask:backing:defer:"
+--private foreign handler ObjC_NSWindowInitWithRectStyleBackingDefer(in pObj as ObjcRetainedId, in pRect as NSRect, in pStyleMask as CLong, in pBackingStoreType as CLong, in pDefer as CBool) returns ObjcId binds to "objc:NSWindow.-initWithContentRect:styleMask:backing:defer:"
 private foreign handler ObjC_NSWindowSetTitle(in pObj as ObjcId, in pTitleNSStr as ObjcId) returns nothing binds to "objc:NSWindow.-setTitle:"
--- private foreign handler ObjC_NSWindowSetTitle(in pObj as ObjcId, in pTitleNSStr as ObjcId) returns ObjcId binds to "objc:NSWindow.-setTitle:"
-
 private foreign handler ObjC_NSWindowGetStyleMask(in pObj as ObjcId) returns CLong binds to "objc:NSWindow.-styleMask"
 private foreign handler ObjC_NSWindowSetStyleMask(in pObj as ObjcId, in pOptions as CInt) returns nothing binds to "objc:NSWindow.-setStyleMask:"
 private foreign handler ObjC_NSWindowSetLevel(in pObj as ObjcId, in pLevel as CInt) returns nothing binds to "objc:NSWindow.-setLevel:"
 private foreign handler ObjC_NSWindowGetLevel(in pObj as ObjcId) returns CInt binds to "objc:NSWindow.-level"
 private foreign handler ObjC_NSWindowGetReleasedWhenClosed(in pObj as ObjcId) returns CBool binds to "objc:NSWindow.isReleasedWhenClosed"
-
-private foreign handler ObjC_NSWindowAlloc() returns ObjcRetainedId binds to "objc:NSWindow.+alloc"
-private foreign handler ObjC_NSWindowInitWithRectStyleBackingDefer(in pObj as ObjcRetainedId, in pRect as NSRect, in pStyleMask as CLong, in pBackingStoreType as CLong, in pDefer as CBool) \
-                                                       returns ObjcId binds to "objc:NSWindow.-initWithContentRect:styleMask:backing:defer:"
---private foreign handler ObjC_NSWindowInitWithRectStyleBackingDefer(in pObj as ObjcRetainedId, in pRect as NSRect, in pStyleMask as CLong, in pBackingStoreType as CLong, in pDefer as CBool) returns ObjcId binds to "objc:NSWindow.-initWithContentRect:styleMask:backing:defer:"
-
+-------------------------------------------------------------- NSWindowController ------------------------------------------------------------------------------
+private foreign handler ObjC_NSWindowControllerAlloc() returns ObjcRetainedId binds to "objc:NSWindowController.+alloc"
+private foreign handler ObjC_NSWindowControllerDealloc(in pObj as ObjcId) returns nothing binds to "objc:NSWindowController.-dealloc"
+private foreign handler ObjC_NSWindowControllerInitWithWindow(in pObj as ObjcRetainedId,in pNSWindow as ObjcRetainedId) returns ObjcId binds to "objc:NSWindowController.-initWithWindow:"
+--private foreign handler ObjC_NSWindowControllerInitWithWindow(in pObj as ObjcId,in pNSWindow as ObjcId) returns ObjcId binds to "objc:NSWindowController.-initWithWindow:"
+private foreign handler ObjC_NSWindowControllerShowWindow(in pObj as ObjcId,in pNSWindow as ObjcId) returns nothing binds to "objc:NSWindowController.-showWindow:"
+private foreign handler ObjC_NSWindowControllerClose(in pNSWindowController as ObjcId) returns nothing binds to "objc:NSWindowController.-close"
+private foreign handler ObjC_NSWindowSetContentViewController(in pObj as ObjcId, in pViewController as ObjcId) returns nothing binds to "objc:NSWindow.-setContentView:"
+private foreign handler ObjC_NSWindowGetContentViewController(in pObj as ObjcId) returns ObjcId binds to "objc:NSWindow.-contentViewController"
+-------------------------------------------------------------- NSView ------------------------------------------------------------------------------
 private foreign handler ObjC_NSViewControllerAlloc() returns ObjcRetainedId binds to "objc:NSViewController.+alloc"
 private foreign handler ObjC_NSViewControllerDealloc(in pObj as ObjcId) returns nothing binds to "objc:NSViewController.-dealloc"
 
@@ -138,6 +114,30 @@ private foreign handler ObjC_NSWindowDealloc(in pNSViewController as ObjcId) ret
 
 private foreign handler ObjC_NSWindowSetContentView(in pNSWindow as ObjcId, in pNSView as ObjcId) returns nothing binds to "objc:NSWindow.-setContentView:"
 private foreign handler ObjC_NSWindowSetValueForKey( in pNSWindow as ObjcId, in pValue as ObjcRetainedId, in pSelector as ObjcId) returns nothing binds to "objc:NSWindow.-setValue:forKey:"
+
+------------------------------------------ General Objtive C Cocoa / Foundation Bindings ------------------------------------------------------------------------------
+private foreign handler objC_NSObjectRetain(in pNSObj as ObjcId) returns ObjcId binds to "objc:NSObject.-retain"
+private foreign handler objC_NSObjectAutoRealease(in pNSObj as ObjcId) returns ObjcId binds to "objc:NSObject.-autorelease"
+private foreign handler objC_NSObjectRelease(in pNSObj as ObjcId) returns nothing binds to "objc:NSObject.-release"
+private foreign handler objC_NSObjectDescription(in pNSObj as optional ObjcId) returns ObjcId binds to "objc:NSObject.description"
+private foreign handler objC_NSObjectClassName(in pNSObj as ObjcId) returns ObjcId binds to "objc:NSObject.className"
+private foreign handler objC_NSObjectGetSuperClass(in pNSObj as ObjcId) returns ObjcRetainedId binds to "c:NObject.+superclass:"
+private foreign handler c_NSClassFromString(in pClassNameString as ObjcId) returns ObjcId binds to "c:NSClassFromString"
+private foreign handler objC_NSErrorAlloc() returns ObjcId binds to "objc:NSError.+alloc"
+private foreign handler c_CFErrorCopyDescription(in pCFErrorRef as ObjcId) returns ObjcId binds to "c:CFErrorCopyDescription"
+
+-------------------------------------------------------------------------------------------  Apple PDFKit Bindings ----------------------------------------------------------------------------------------
+private foreign handler objC_ApplePDFKitPDFViewAlloc() returns ObjcId binds to "objc:PDFView.+alloc"
+private foreign handler objC_ApplePDFKitPDFViewInit(in pPDFView as ObjcRetainedId) returns ObjcRetainedId binds to "objc:PDFView.-init"
+-- private foreign handler objC_ApplePDFKitPDFSetDocument(in pPDFView as ObjcId, in pPDFDocument as ObjcId) returns nothing binds to "objc:objc:PDFView.-document:"
+private foreign handler objC_ApplePDFKitPDFViewSetValueForKey(in pPDFDocument as ObjcId, in pValue as ObjcId, in pSelector as ObjcId) returns nothing binds to "objc:PDFView.-setValue:forKey:"
+private foreign handler objC_ApplePDFKitPDFViewSetBoolValueForKey(in pPDFDocument as ObjcId, in pValue as CBool, in pSelector as ObjcId) returns nothing binds to "objc:PDFView.-setValue:forKey:"
+
+private foreign handler objC_ApplePDFKitPDFDocumentAlloc() returns ObjcRetainedId binds to "objc:PDFDocument.+alloc"
+private foreign handler objC_ApplePDFKitPDFDocumentInitFromURL(in pPDFDocument as ObjcRetainedId, in pNSURL as ObjcId) returns ObjcRetainedId binds to "objc:PDFDocument.-initWithURL:"
+--private foreign handler objC_ApplePDFKitPDFDocumentGetPageCount(in pPDFDocument as ObjcId) returns ObjcId binds to "objc:PDFDocument.pageCount"
+private foreign handler objC_ApplePDFKitPDFDocumentValueForKey(in pPDFDocument as ObjcId, in pSelector as ObjcId) returns ObjcId binds to "objc:PDFDocument.-valueForKey:"
+
 
 public handler ApplePDFKitGetPDFPageCount(in pPathToPDFStr as String) returns optional any
    if (the operating system is "mac") or (the operating system is "ios") then
@@ -299,6 +299,42 @@ public handler ViewControllerCompletionHandler( in pContext as optional ObjcBloc
          log tStr
       end if
    end if
+end handler
+
+public unsafe handler LCImageToNSImage(in pImage as String) returns optional ObjcObject
+	variable tObject as optional ScriptObject
+	resolve script object pImage
+	put the result into tObject
+
+	variable tNSImage as optional ObjcObject
+	variable tFile as String
+	if tObject exists then
+		put property "filename" of tObject into tFile
+		if tFile is empty then
+			variable tData as Data
+			put property "text" of tObject into tData
+			put ObjC_NSImageAlloc() into tNSImage
+			put ObjC_NSImageInitWithData(tNSImage, DataToNSData(tData)) into tNSImage
+		else
+			resolve file tFile relative to tObject
+			if the result is not nothing then
+				put the result into tFile
+			end if
+		end if
+	else
+		resolve file pImage
+		if the result is not nothing then
+			put the result into tFile
+		end if
+	end if
+
+	if tFile is not empty then
+		put ObjC_NSImageAlloc() into tNSImage
+		put ObjC_NSImageInitWithContentsOfFile(tNSImage, StringToNSString(tFile)) into tNSImage
+	end if
+   LogNSObjectClassName(tNSImage)
+   log tNSImage
+	return -- tNSImage
 end handler
 
 end library

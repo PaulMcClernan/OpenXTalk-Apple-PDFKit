@@ -7,13 +7,13 @@
   <type>library</type>
   <requires name="com.livecode.objc"/>
   <requires name="com.livecode.foreign"/>
+  <requires name="com.livecode.engine"/>
   <requires name="com.livecode.arithmetic"/>
   <requires name="com.livecode.binary"/>
   <requires name="com.livecode.list"/>
   <requires name="com.livecode.logic"/>
   <requires name="com.livecode.string"/>
   <requires name="com.livecode.type"/>
-  <requires name="com.livecode.engine"/>
   <requires name="com.livecode.system"/>
   <metadata key="svgicon"></metadata>
   <handler name="LogNSObjectClassName" parameters="in optional ObjcId" return="any"/>
@@ -23,4 +23,5 @@
   <handler name="ApplePDFKitMakePDFViewWindow" parameters="in string" return="optional any"/>
   <handler name="ClosePDFWindow" parameters="" return="any"/>
   <handler name="ViewControllerCompletionHandler" parameters="in optional Pointer,in optional ObjcId" return="any"/>
+  <handler name="LCImageToNSImage" parameters="in string" return="optional ObjcObject"/>
 </package>
