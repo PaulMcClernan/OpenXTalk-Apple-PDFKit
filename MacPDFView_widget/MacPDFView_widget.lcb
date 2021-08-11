@@ -53,6 +53,31 @@ end mouseLeave
 Description:
 Use the <returnKey> message to respond to the user pressing the return
 key whilst the field is focused.
+
+Name: mouseDown
+
+Syntax: on mouseDown
+
+Type: message
+
+Name: mouseUp
+
+Syntax: on mouseUp
+
+Type: message
+
+Name: mouseScroll
+
+Syntax: on mouseScroll
+
+Type: message
+
+Name: mouseStillHover
+
+Syntax: on mouseStillHover
+
+Type: message
+
 */
 widget com.livecode.widget.applepdfkit.paulmcclernan
 
@@ -607,6 +632,22 @@ end handler
 
 public handler OnMouseLeave()
   post "mouseLeave"
+end handler
+
+public handler OnMouseUp()
+  post "mouseUp"
+end handler
+
+public handler OnMouseDown()
+  post "mouseDown"
+end handler
+
+public handler OnMouseScroll()
+  post "mouseScroll"
+end handler
+
+public handler OnMouseStillHover()
+   post "mouseStillHover"
 end handler
 
 public handler OnStartEditing()
