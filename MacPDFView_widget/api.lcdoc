@@ -58,6 +58,31 @@ Description:
 Use the <returnKey> message to respond to the user pressing the return
 key whilst the field is focused.
 
+Name: mouseDown
+
+Type: message
+
+Syntax: on mouseDown
+
+Name: mouseUp
+
+Type: message
+
+Syntax: on mouseUp
+
+Name: mouseScroll
+
+Type: message
+
+Syntax: on mouseScroll
+
+Name: mouseStillHover
+
+Type: message
+
+
+Syntax: on mouseStillHover
+
 Name: PDFViewGoPage
 
 Type: property

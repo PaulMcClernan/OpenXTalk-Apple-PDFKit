@@ -16,6 +16,7 @@
   <requires name="com.livecode.type"/>
   <requires name="com.livecode.system"/>
   <metadata key="svgicon"></metadata>
+  <handler name="getDefaultNotificationCenterAndAddObserverPDFViewPageChanged" parameters="" return="nothing"/>
   <handler name="LogNSObjectClassName" parameters="in optional ObjcId" return="any"/>
   <handler name="GetNSObjectClassName" parameters="in optional ObjcId" return="optional string"/>
   <handler name="ApplePDFKitGetPDFPageCount" parameters="in string" return="optional any"/>

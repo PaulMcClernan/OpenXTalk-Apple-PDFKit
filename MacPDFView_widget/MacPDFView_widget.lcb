@@ -102,14 +102,20 @@ private variable sMyWindowController as optional ObjcObject
 private variable sPDFViewController as optional ObjcObject
 private variable mTextFieldProxy as optional ObjcObject
 
+-- constant kFoo is { "default": 0, "thing2": 1, "otherthing": 2 }
+
 private type NSUInteger is CULong
 
-private foreign handler ObjC_NSTextFieldSetStringValue(in pObj as ObjcId, in pText as ObjcId) returns nothing binds to "objc:NSTextField.-setStringValue:"
-private foreign handler ObjC_NSTextFieldGetStringValue(in pObj as ObjcId) returns ObjcId binds to "objc:NSTextField.-stringValue"
+private foreign handler ObjC_NSAppWindowWithWindowNumber(in pObj as ObjcId, in pWindowNumber as CLong) returns ObjcId binds to "objc:NSApplication.-windowWithWindowNumber:"
 
 private foreign handler MCCanvasFontGetHandle(in pFont as Font, out rHandle as ObjcId) returns nothing binds to "<builtin>"
 
 private foreign handler ObjC_NSApplicationSharedApplication() returns ObjcId binds to "objc:NSApplication.+sharedApplication"
+private foreign handler ObjC_NSApplicationGetTargetForAction(in pNSApp as ObjcId, in pSelectorNSStr as ObjcId ) returns ObjcId binds to "objc:NSApplication.-targetForAction:"
+-- Returns the object that receives the action message specified by the given selector.
+
+private foreign handler ObjC_NSNotificationCenter() returns ObjcId binds to "objc:NSNotificationCenter.+defaultCenter"
+
 private foreign handler objC_NSURLURLWithString(in pURLString as ObjcId) returns ObjcId binds to "objc:NSURL.+URLWithString:"
 private foreign handler objC_NSURLfileOrDirURLWithPath(in pPathString as ObjcId, in pIsDir as CBool) returns ObjcId binds to "objc:.NSURL.+fileURLWithPath:isDirectory:"
 private foreign handler objC_NSURLfileURLWithPath(in pPathString as ObjcId) returns ObjcId binds to "objc:NSURL.+fileURLWithPath:"
@@ -127,6 +133,12 @@ private foreign handler objC_NSObjectGetSuperClass(in pNSObj as ObjcId) returns 
 
 private foreign handler ObjC_NSBundleWithURL(in pNSURL as ObjcId) returns ObjcId binds to "objc:NSBundle.+bundleWithURL:"
 private foreign handler ObjC_NSBundleGetClassNamed(in pNSbundle as ObjcId,in pClassNameNSString as ObjcId) returns ObjcId binds to "objc:NSBundle.-classNamed:"
+
+-- NSImage
+private foreign handler ObjC_NSImageAlloc() returns ObjcRetainedId binds to "objc:NSImage.+alloc"
+private foreign handler ObjC_NSImageInitWithData(in pObj as ObjcRetainedId, in pData as ObjcId) returns optional ObjcRetainedId binds to "objc:NSImage.-initWithData:"
+private foreign handler ObjC_NSImageInitWithContentsOfFile(in pObj as ObjcRetainedId, in pFilename as ObjcId) returns optional ObjcRetainedId binds to "objc:NSImage.-initWithContentsOfFile:"
+private foreign handler ObjC_NSImageSetTemplate(in pObj as ObjcId, in pTemplate as CBool) returns nothing binds to "objc:NSImage.-setTemplate:"
 
 private foreign handler c_CFErrorCopyDescription(in pCFErrorRef as ObjcId) returns ObjcId binds to "c:CFErrorCopyDescription"
 
@@ -156,10 +168,35 @@ private foreign handler objC_ApplePDFKitPDFDocumentInitFromURL(in pPDFDocument a
 private foreign handler objC_ApplePDFKitPDFDocumentValueForKey(in pPDFDocument as ObjcId, in pSelector as ObjcId) returns ObjcId binds to "objc:PDFDocument.-valueForKey:"
 private foreign handler objC_ApplePDFKitPDFDocumentSetValueForKey(in pPDFDocument as ObjcId, in pValue as ObjcId, in pSelector as ObjcId) returns ObjcId binds to "objc:PDFDocument.-setValue:forKey:"
 private foreign handler objC_ApplePDFKitPDFDocumentGetPageAtIndex(in pPDFDocument as ObjcId, in pIndexNSNumb as CUint) returns ObjcId binds to "objc:PDFDocument.pageAtIndex:"
--- private foreign handler objC_ApplePDFKitPDFDocumentGetPageAtIndex(in pPDFDocument as ObjcId, in pIndexNSNumb as ObjcId) returns ObjcId binds to "objc:PDFDocument.-pageAtIndex:"
 
-private foreign handler ObjC_NSAppWindowWithWindowNumber(in pObj as ObjcId, in pWindowNumber as CLong) returns ObjcId binds to "objc:NSApplication.-windowWithWindowNumber:"
+-- private foreign handler ObjC_NSTextFieldSetTarget(in pObj as ObjcId, in pTarget as ObjcId) returns nothing binds to "objc:NSTextField.-setTarget:"
+-- private foreign handler ObjC_NSTextFieldSetAction(in pObj as ObjcId, in pAction as UIntPtr) returns nothing binds to "objc:NSTextField.-setAction:"
+-- put ObjcProxyGetTarget(TextFieldActionCallback, nothing) into mTextFieldProxy
+-- ObjC_NSTextFieldSetTarget(mTextFieldView, mTextFieldProxy)
+-- ObjC_NSTextFieldSetAction(mTextFieldView, ObjcProxyGetAction())
+-- private variable mTextFieldView as optional ObjcObject
+-- private variable mTextFieldProxy as optional ObjcObject
+-- private handler TextFieldActionCallback(in pSender as ObjcObject, in pContext as optional any) returns nothing
+--     post "returnKey"
+-- end handler
+-- NotificationCenter.default.addObserver(self, selector: #selector(handlePageChange(notification:)), name: Notification.Name.PDFViewPageChanged, object: nil)
+-- @objc private func handlePageChange(notification: Notification) { print("Page changed") }
+-- https://developer.apple.com/documentation/foundation/nsnotificationcenter/1411723-addobserverforname?language=objc
+-- https://developer.apple.com/documentation/foundation/nsnotificationcenter/1414169-defaultcenter?language=objc
 
+public handler getDefaultNotificationCenterAndAddObserverPDFViewPageChanged() returns optional any
+   variable tOSStatus as CSInt
+   variable tNSObj as optional ObjcId
+   variable tNSNotificationCenter as optional ObjcId
+   variable tStr as optional String
+   unsafe
+      put ObjC_NSNotificationCenter() into tNSNotificationCenter
+      put objC_NSObjectClassName(tNSNotificationCenter) into tNSObj
+      put StringFromNSString(tNSObj) into tStr
+      log tStr
+   end unsafe
+   -- log "Notification.Name.PDFViewPageChanged"
+end handler
 -------------------------------------------------------------------- Utility Handlers ----------------------------------------------------------------------------
 public handler LogNSObjectClassName(in tNSObj as optional ObjcId)
    variable tOSStatus as CSInt
@@ -341,7 +378,7 @@ one page at a time.
 */
 property "PDFDisplayMode" get getPDFDisplayMode set setPDFDisplayMode
 metadata PDFDisplayMode.label is "PDF Path"
-metadata PDFDisplayMode.default is "1"
+metadata PDFDisplayMode.default is "Single-Continuous"
 -- metadata PDFDisplayMode.editor is "com.livecode.pi.number"
 metadata PDFDisplayMode.editor is "com.livecode.pi.enum"
 metadata PDFDisplayMode.options is "Single,Single-Continuous,TwoUp,TwoUp-Continuous"
@@ -351,6 +388,7 @@ metadata PDFDisplayMode.label is "PDF Display Mode"
 private variable mPDFDisplayMode as Number
 
 private handler setPDFDisplayMode(in pSelector as String) returns nothing
+   getDefaultNotificationCenterAndAddObserverPDFViewPageChanged()
     -- put pPath into mPDFPath
     variable tNSError as optional ObjcId
      variable tNSObj as optional ObjcId
