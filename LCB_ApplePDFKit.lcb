@@ -21,38 +21,6 @@ metadata author is "Paul McClernan"
 metadata title is "LCB ApplePDFKitLib"
 metadata svgicon is ""
 
-private foreign handler ObjC_NSApplicationGetTargetForAction(in pNSApp as ObjcId, in pSelectorNSStr as ObjcId ) returns ObjcId binds to "objc:NSApplication.-targetForAction:"
--- Returns the object that receives the action message specified by the given selector.
-private foreign handler ObjC_NSNotificationCenter() returns ObjcId binds to "objc:NSNotificationCenter.+defaultCenter"
---- private foreign handler ObjC_NSTextFieldSetTarget(in pObj as ObjcId, in pTarget as ObjcId) returns nothing binds to "objc:NSTextField.-setTarget:"
--- private foreign handler ObjC_NSTextFieldSetAction(in pObj as ObjcId, in pAction as UIntPtr) returns nothing binds to "objc:NSTextField.-setAction:"
--- put ObjcProxyGetTarget(TextFieldActionCallback, nothing) into mTextFieldProxy
--- ObjC_NSTextFieldSetTarget(mTextFieldView, mTextFieldProxy)
--- ObjC_NSTextFieldSetAction(mTextFieldView, ObjcProxyGetAction())
--- private variable mTextFieldView as optional ObjcObject
--- private variable mTextFieldProxy as optional ObjcObject
--- private handler TextFieldActionCallback(in pSender as ObjcObject, in pContext as optional any) returns nothing
---     post "returnKey"
--- end handler
--- NotificationCenter.default.addObserver(self, selector: #selector(handlePageChange(notification:)), name: Notification.Name.PDFViewPageChanged, object: nil)
--- @objc private func handlePageChange(notification: Notification) { print("Page changed") }
--- https://developer.apple.com/documentation/foundation/nsnotificationcenter/1411723-addobserverforname?language=objc
--- https://developer.apple.com/documentation/foundation/nsnotificationcenter/1414169-defaultcenter?language=objc
-
-public handler getDefaultNotificationCenterAndAddObserverPDFViewPageChanged() returns nothing
-   variable tOSStatus as CSInt
-   variable tNSObj as optional ObjcId
-   variable tNSNotificationCenter as optional ObjcId
-   variable tStr as optional String
-   unsafe
-      put ObjC_NSNotificationCenter() into tNSNotificationCenter
-      put objC_NSObjectClassName(tNSNotificationCenter) into tNSObj
-      put StringFromNSString(tNSObj) into tStr
-      log tStr
-   end unsafe
-   -- log "Notification.Name.PDFViewPageChanged"
-end handler
-
 public handler LogNSObjectClassName(in tNSObj as optional ObjcId)
    variable tOSStatus as CSInt
    variable tNSStrObj as optional ObjcId
@@ -91,6 +59,7 @@ public foreign type CGPoint binds to "MCAggregateTypeInfo:qq"
 private variable sMyWindow as optional ObjcObject
 private variable mPDFView as optional ObjcObject
 private variable mPDFDocument as optional ObjcObject
+private variable mPDFViewProxy as optional ObjcObject
 private variable sMyWindowController as optional ObjcObject
 private variable sPDFViewController as optional ObjcObject
 
@@ -167,6 +136,44 @@ private foreign handler objC_ApplePDFKitPDFDocumentAlloc() returns ObjcRetainedI
 private foreign handler objC_ApplePDFKitPDFDocumentInitFromURL(in pPDFDocument as ObjcRetainedId, in pNSURL as ObjcId) returns ObjcRetainedId binds to "objc:PDFDocument.-initWithURL:"
 --private foreign handler objC_ApplePDFKitPDFDocumentGetPageCount(in pPDFDocument as ObjcId) returns ObjcId binds to "objc:PDFDocument.pageCount"
 private foreign handler objC_ApplePDFKitPDFDocumentValueForKey(in pPDFDocument as ObjcId, in pSelector as ObjcId) returns ObjcId binds to "objc:PDFDocument.-valueForKey:"
+
+
+private foreign handler ObjC_NSApplicationGetTargetForAction(in pNSApp as ObjcId, in pSelectorNSStr as ObjcId ) returns ObjcId binds to "objc:NSApplication.-targetForAction:"
+-- Returns the object that receives the action message specified by the given selector.
+private foreign handler ObjC_NSNotificationCenter() returns ObjcId binds to "objc:NSNotificationCenter.+defaultCenter"
+private foreign handler ObjC_NSNotificationCenterAddObserverForSelector( in pNotificationCenter as ObjcId, in pObserver as ObjcId, in pSelectorNSStr as optional ObjcId, \
+                                          in pNameNSStr as optional ObjcId, in pSender as optional ObjcId) returns ObjcId binds to "objc:NSNotificationCenter.addObserver:selector:name:object:"
+--- private foreign handler ObjC_NSTextFieldSetTarget(in pObj as ObjcId, in pTarget as ObjcId) returns nothing binds to "objc:NSTextField.-setTarget:"
+-- private foreign handler ObjC_NSTextFieldSetAction(in pObj as ObjcId, in pAction as UIntPtr) returns nothing binds to "objc:NSTextField.-setAction:"
+-- put ObjcProxyGetTarget(TextFieldActionCallback, nothing) into mTextFieldProxy
+-- ObjC_NSTextFieldSetTarget(mTextFieldView, mTextFieldProxy)
+-- ObjC_NSTextFieldSetAction(mTextFieldView, ObjcProxyGetAction())
+-- private variable mTextFieldView as optional ObjcObject
+-- private variable mTextFieldProxy as optional ObjcObject
+private handler PDFViewCallback(in pSender as ObjcObject, in pContext as optional any) returns nothing
+      log "callback triggered"
+    -- post "returnKey"
+end handler
+-- NotificationCenter.default.addObserver(self, selector: #selector(handlePageChange(notification:)), name: Notification.Name.PDFViewPageChanged, object: nil)
+-- @objc private func handlePageChange(notification: Notification) { print("Page changed") }
+-- https://developer.apple.com/documentation/foundation/nsnotificationcenter/1411723-addobserverforname?language=objc
+-- https://developer.apple.com/documentation/foundation/nsnotificationcenter/1414169-defaultcenter?language=objc
+public handler getDefaultNotificationCenterAndAddObserverPDFViewPageChanged() returns nothing
+   variable tOSStatus as CSInt
+   variable tNSObj as optional ObjcId
+   variable tNSNotificationCenter as optional ObjcId
+   variable tStr as optional String
+   unsafe
+      put ObjC_NSNotificationCenter() into tNSNotificationCenter
+      put objC_NSObjectClassName(tNSNotificationCenter) into tNSObj
+      put StringFromNSString(tNSObj) into tStr
+      log tStr
+      put ObjcProxyGetTarget(PDFViewCallback, nothing) into mPDFViewProxy
+      -- NSNotificationCenter.addObserver:selector:name:object
+      ObjC_NSNotificationCenterAddObserverForSelector( tNSNotificationCenter, mPDFViewProxy, StringToNSString("NSWindowDidBecomeMainNotification"), nothing, nothing )
+   end unsafe
+   -- log "Notification.Name.PDFViewPageChanged"
+end handler
 
 
 public handler ApplePDFKitGetPDFPageCount(in pPathToPDFStr as String) returns optional any
