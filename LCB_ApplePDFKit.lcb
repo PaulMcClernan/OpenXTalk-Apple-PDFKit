@@ -60,6 +60,7 @@ private variable sMyWindow as optional ObjcObject
 private variable mPDFView as optional ObjcObject
 private variable mPDFDocument as optional ObjcObject
 private variable mPDFViewProxy as optional ObjcObject
+private variable mPDFViewProxyBlockPtr as optional ObjcBlockPointer
 private variable sMyWindowController as optional ObjcObject
 private variable sPDFViewController as optional ObjcObject
 
@@ -143,6 +144,8 @@ private foreign handler ObjC_NSApplicationGetTargetForAction(in pNSApp as ObjcId
 private foreign handler ObjC_NSNotificationCenter() returns ObjcId binds to "objc:NSNotificationCenter.+defaultCenter"
 private foreign handler ObjC_NSNotificationCenterAddObserverForSelector( in pNotificationCenter as ObjcId, in pObserver as ObjcId, in pSelectorNSStr as optional ObjcId, \
                                           in pNameNSStr as optional ObjcId, in pSender as optional ObjcId) returns ObjcId binds to "objc:NSNotificationCenter.addObserver:selector:name:object:"
+private foreign handler ObjC_NSNotificationCenterAddObserverForNameUsingBlock( in pNotificationCenter as ObjcId, in pObserverForNameNSStr as ObjcId, in pObject as optional ObjcId, \
+                                          in pQueue as optional ObjcId, in pBlock as optional ObjcBlockPointer) returns ObjcId binds to "objc:NSNotificationCenter.addObserverForName:object:queue:usingBlock:"
 --- private foreign handler ObjC_NSTextFieldSetTarget(in pObj as ObjcId, in pTarget as ObjcId) returns nothing binds to "objc:NSTextField.-setTarget:"
 -- private foreign handler ObjC_NSTextFieldSetAction(in pObj as ObjcId, in pAction as UIntPtr) returns nothing binds to "objc:NSTextField.-setAction:"
 -- put ObjcProxyGetTarget(TextFieldActionCallback, nothing) into mTextFieldProxy
@@ -150,10 +153,28 @@ private foreign handler ObjC_NSNotificationCenterAddObserverForSelector( in pNot
 -- ObjC_NSTextFieldSetAction(mTextFieldView, ObjcProxyGetAction())
 -- private variable mTextFieldView as optional ObjcObject
 -- private variable mTextFieldProxy as optional ObjcObject
-private handler PDFViewCallback(in pSender as ObjcObject, in pContext as optional any) returns nothing
-      log "callback triggered"
-    -- post "returnKey"
+private handler PDFViewCallback(in pBlock as ObjcBlockPointer, in pNotification as optional any) returns optional any
+      log "callback PDFViewPageChangedNotification"
 end handler
+
+public handler PDFViewInitCallback()
+    if mPDFViewProxyBlockPtr is nothing then
+  	 if not CreateObjcBlockPointerFromHandler(PDFViewCallback, mPDFViewProxyBlockPtr) then
+  	   put nothing into mPDFViewProxyBlockPtr
+  	 end if
+     --  put the caller into sTarget
+     -- resolve script object "this stack"
+     -- put the result into sTarget
+   end if
+end handler
+
+public handler PDFViewRemoveCallback()
+	if mPDFViewProxyBlockPtr is not nothing then
+		DeleteObjcBlockPointer(mPDFViewProxyBlockPtr)
+		put nothing into mPDFViewProxyBlockPtr
+	 end if
+end handler
+
 -- NotificationCenter.default.addObserver(self, selector: #selector(handlePageChange(notification:)), name: Notification.Name.PDFViewPageChanged, object: nil)
 -- @objc private func handlePageChange(notification: Notification) { print("Page changed") }
 -- https://developer.apple.com/documentation/foundation/nsnotificationcenter/1411723-addobserverforname?language=objc
@@ -168,9 +189,11 @@ public handler getDefaultNotificationCenterAndAddObserverPDFViewPageChanged() re
       put objC_NSObjectClassName(tNSNotificationCenter) into tNSObj
       put StringFromNSString(tNSObj) into tStr
       log tStr
-      put ObjcProxyGetTarget(PDFViewCallback, nothing) into mPDFViewProxy
+      -- put ObjcProxyGetTarget(PDFViewCallback, nothing) into mPDFViewProxy
       -- NSNotificationCenter.addObserver:selector:name:object
-      ObjC_NSNotificationCenterAddObserverForSelector( tNSNotificationCenter, mPDFViewProxy, StringToNSString("NSWindowDidBecomeMainNotification"), nothing, nothing )
+      -- ObjC_NSNotificationCenterAddObserverForSelector( tNSNotificationCenter, mPDFViewProxy, StringToNSString("NSWindowDidBecomeMainNotification"), nothing, nothing )
+      PDFViewInitCallback()
+      ObjC_NSNotificationCenterAddObserverForNameUsingBlock(tNSNotificationCenter, StringToNSString("PDFViewPageChangedNotification"), mPDFView, nothing, mPDFViewProxyBlockPtr )
    end unsafe
    -- log "Notification.Name.PDFViewPageChanged"
 end handler
