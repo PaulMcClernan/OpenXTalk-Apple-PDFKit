@@ -193,11 +193,12 @@ private handler PDFViewVisiblePageChangedCallback(in pBlock as optional ObjcBloc
       unsafe
          put ObjC_NSNotificationGetName(pNotification) into tNSObj
          put StringFromNSString(tNSObj) into tStr
-         log tStr
+         -- log tStr
       end unsafe
    end if
    post "VisiblePageChanged"
 end handler
+
 private variable mPDFViewCallbackBlkPtr as optional ObjcBlockPointer
 private handler PDFViewCallback(in pBlock as optional ObjcBlockPointer, in pNotification as optional ObjcId)
 if pNotification is not nothing then
@@ -207,10 +208,10 @@ if pNotification is not nothing then
       unsafe
          put ObjC_NSNotificationGetName(pNotification) into tNSObj
          put StringFromNSString(tNSObj) into tStr
-         log tStr
+         -- log tStr
       end unsafe
+      post "PDFViewChanged" with [tStr]
    end if
-   post "PageChanged"
 end handler
 
 public handler PDFViewInitCallbacks()
