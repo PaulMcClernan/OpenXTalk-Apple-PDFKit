@@ -95,6 +95,11 @@ private foreign handler ObjC_NSWindowSetStyleMask(in pObj as ObjcId, in pOptions
 private foreign handler ObjC_NSWindowSetLevel(in pObj as ObjcId, in pLevel as CInt) returns nothing binds to "objc:NSWindow.-setLevel:"
 private foreign handler ObjC_NSWindowGetLevel(in pObj as ObjcId) returns CInt binds to "objc:NSWindow.-level"
 private foreign handler ObjC_NSWindowGetReleasedWhenClosed(in pObj as ObjcId) returns CBool binds to "objc:NSWindow.isReleasedWhenClosed"
+private foreign handler ObjC_NSWindowCreateWithViewController(in pNSViewController as ObjcId) returns ObjcRetainedId binds to "objc:NSWindow.+windowWithContentViewController:"
+private foreign handler ObjC_NSWindowDealloc(in pNSViewController as ObjcId) returns nothing binds to "objc:NSWindow.-dealloc"
+private foreign handler ObjC_NSWindowSetContentView(in pNSWindow as ObjcId, in pNSView as ObjcId) returns nothing binds to "objc:NSWindow.-setContentView:"
+private foreign handler ObjC_NSWindowSetBoolValueForKey( in pNSWindow as ObjcId, in pValue as CBool, in pSelector as ObjcId) returns nothing binds to "objc:NSWindow.-setValue:forKey:"
+-- private foreign handler ObjC_NSWindowSetTitlebarTransparent(in pObj as ObjcId, in pBool as CBool) returns nothing binds to "objc:NSWindow.titlebarAppearsTransparent"
 -------------------------------------------------------------- NSWindowController ------------------------------------------------------------------------------
 private foreign handler ObjC_NSWindowControllerAlloc() returns ObjcRetainedId binds to "objc:NSWindowController.+alloc"
 private foreign handler ObjC_NSWindowControllerDealloc(in pObj as ObjcId) returns nothing binds to "objc:NSWindowController.-dealloc"
@@ -107,12 +112,6 @@ private foreign handler ObjC_NSWindowGetContentViewController(in pObj as ObjcId)
 -------------------------------------------------------------- NSView ------------------------------------------------------------------------------
 private foreign handler ObjC_NSViewControllerAlloc() returns ObjcRetainedId binds to "objc:NSViewController.+alloc"
 private foreign handler ObjC_NSViewControllerDealloc(in pObj as ObjcId) returns nothing binds to "objc:NSViewController.-dealloc"
-
-private foreign handler ObjC_NSWindowCreateWithViewController(in pNSViewController as ObjcId) returns ObjcRetainedId binds to "objc:NSWindow.+windowWithContentViewController:"
-private foreign handler ObjC_NSWindowDealloc(in pNSViewController as ObjcId) returns nothing binds to "objc:NSWindow.-dealloc"
-
-private foreign handler ObjC_NSWindowSetContentView(in pNSWindow as ObjcId, in pNSView as ObjcId) returns nothing binds to "objc:NSWindow.-setContentView:"
-private foreign handler ObjC_NSWindowSetValueForKey( in pNSWindow as ObjcId, in pValue as ObjcRetainedId, in pSelector as ObjcId) returns nothing binds to "objc:NSWindow.-setValue:forKey:"
 
 ------------------------------------------ General Objtive C Cocoa / Foundation Bindings ------------------------------------------------------------------------------
 private foreign handler objC_NSObjectRetain(in pNSObj as ObjcId) returns ObjcId binds to "objc:NSObject.-retain"
@@ -376,14 +375,10 @@ public handler ApplePDFKitMakePDFViewWindow(in pPathToPDFStr as String) returns 
       put ObjC_NSWindowAlloc() into sMyWindow
       put ObjC_NSWindowInitWithRectStyleBackingDefer(sMyWindow,tNSRect,tStyleMask,2,true) into sMyWindow
      -- log sMyWindow
-     ----------------- just used as a check --------------------
-     -- put objC_NSObjectClassName(sMyWindow) into tNSObj
-     -- put StringFromNSString(tNSObj) into tStr
-      -- log tStr
-      --------------------------------------------------------------
-      -- put ObjC_NSWindowSetValueForKey(sMyWindow,mPDFView,StringToNSString("view")) into tNSObj
-      -- LogNSObjectClassName(tNSObj)
-      -- ObjC_NSWindowSetTitle(sMyWindow,StringToNSString("Paul's NSWindow Test"))
+      ObjC_NSWindowSetTitle(sMyWindow,StringToNSString(pPathToPDFStr))
+      ObjC_NSWindowSetBoolValueForKey(sMyWindow,true,StringToNSString("titlebarAppearsTransparent")) --- add this and other NSWindow properties to lcb_MacTools
+      ---
+      -------------------------------------------------------------
       put ObjC_NSWindowControllerAlloc() into sMyWindowController
       put ObjC_NSWindowControllerInitWithWindow(sMyWindowController,sMyWindow) into sMyWindowController
       ObjC_NSWindowControllerShowWindow(sMyWindowController,sMyWindow)
