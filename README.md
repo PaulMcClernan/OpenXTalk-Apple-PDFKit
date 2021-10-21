@@ -1,2 +1,2 @@
-# LCB_ApplePDFKit
-OpenXTalk LCB wrapper for Apple's PDFKit framework
+# OpenXTalk Builder Apple PDFKit Library
+An OpenXTalk Builder Wrapper Library for Apple's PDFKit framework
