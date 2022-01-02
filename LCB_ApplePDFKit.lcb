@@ -1,4 +1,4 @@
-library community.applepdfkit.paulmcclernan
+library org.openxtalk.applepdfkit.paulmcclernan
 -- widget com.livecode.widget.applepdfkit.paulmcclernan
 
 use com.livecode.engine
