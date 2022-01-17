@@ -1,0 +1,27 @@
+import module org.openxtalk.applepdfkit.paulmcclernan
+  use com.livecode.objc
+  use com.livecode.foreign
+  use com.livecode.engine
+  use com.livecode.arithmetic
+  use com.livecode.binary
+  use com.livecode.list
+  use com.livecode.logic
+  use com.livecode.string
+  use com.livecode.type
+  use com.livecode.system
+  handler LogNSObjectClassName(in tNSObj as optional ObjcId) returns optional any
+  handler GetNSObjectClassName(in tNSObj as optional ObjcId) returns optional String
+  foreign type CGSize
+  foreign type NSRect
+  foreign type CGImageRef
+  foreign type CGPoint
+  handler PDFViewInitCallbacks() returns optional any
+  handler PDFViewRemoveCallbacks() returns optional any
+  handler getDefaultNotificationCenterAndAddObserverPDFViewPageChanged() returns optional any
+  handler ApplePDFKitGetPDFPageCount(in pPathToPDFStr as String) returns optional any
+  handler ApplePDFKitGetPDFText(in pPathToPDFStr as String) returns optional any
+  handler ApplePDFKitMakePDFViewWindow(in pPathToPDFStr as String) returns optional any
+  handler ClosePDFWindow() returns optional any
+  handler ViewControllerCompletionHandler(in pBlock as optional ObjcBlockPointer, in pNotification as optional ObjcId) returns optional any
+  unsafe handler LCImageToNSImage(in pImage as String) returns optional ObjcObject
+end module
