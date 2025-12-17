@@ -1,6 +1,5 @@
-
-._LCB_ApplePDFKit.lcb
-._api.lcdoc
+._*
+*._*
 ._PDFKitTester.livecode
 community.applepdfkit.paulmcclernan.lci
 MacPDFView_widget/manifest.xml
@@ -34,3 +33,4 @@ MacPDFView_widget/._Apple PDFKit Widget Tester.oxtstack
 old/._LCB_ApplePDFKit.lcb.txt
 MacPDFView_widget/._Apple PDFKit Widget Tester.oxtstack
 old/._LCB_ApplePDFKit.lcb.txt
+ApplePDFView_library/._OXTApplePDFKit.lcb

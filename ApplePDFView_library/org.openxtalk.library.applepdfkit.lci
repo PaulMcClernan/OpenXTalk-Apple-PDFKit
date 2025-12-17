@@ -1,4 +1,4 @@
-import module org.openxtalk.applepdfkit.paulmcclernan
+import module org.openxtalk.library.applepdfkit
   use com.livecode.objc
   use com.livecode.foreign
   use com.livecode.engine
